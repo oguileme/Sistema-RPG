@@ -1,4 +1,4 @@
 package classes;
 
-public class Protagonista {
+public class Protagonista extends Ficha{
 }
