@@ -1,2 +1,4 @@
-public class Player extends Usuario{
+package classes;
+
+public class Player extends Usuario {
 }
