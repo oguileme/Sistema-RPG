@@ -1,4 +1,4 @@
 package classes;
 
-public class NPCs {
+public class NPCs extends Ficha{
 }
