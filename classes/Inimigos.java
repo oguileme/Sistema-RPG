@@ -1,4 +1,4 @@
 package classes;
 
-public class Inimigos {
+public class Inimigos extends Ficha{
 }
