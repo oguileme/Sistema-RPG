@@ -1,3 +1,5 @@
+package classes;
+
 public class Armadura extends Equipamento{
     private int bonusCA;
     private int maxDestreza;

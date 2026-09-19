@@ -1,3 +1,5 @@
+package classes;
+
 public class Arma extends Equipamento{
     private String tipoDano;
     private Rolagem teste;

@@ -1,3 +1,4 @@
+package classes;
 public class Equipamento {
     private String nome;
     private int quantidade;

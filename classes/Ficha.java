@@ -15,12 +15,16 @@ public abstract class Ficha {
     private Double tamanho;
     private Double deslocamento;
     private int dinheiro;
+
+    //Atributos
     private int forca;
     private int destreza;
     private int constituicao;
     private int inteligencia;
     private int sabedoria;
     private int carisma;
+
+    private Rolagem histRolagem;
 
 
 }
