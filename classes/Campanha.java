@@ -1,3 +1,6 @@
+package classes;
+import java.util.List;
+
 public class Campanha {
     private String nome;
     private String descricao;
