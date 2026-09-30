@@ -129,6 +129,13 @@ public class TelaFicha extends JFrame {
             dispose();
         });
 
+        // Botão rolar dados
+        JButton botaoRolar = new JButton("Rolar dados");
+
+        botaoRolar.addActionListener(e ->
+                new TelaRolagem(protagonista).setVisible(true)
+        );
+
         // Botão fechar
         JButton botaoFechar = new JButton("Fechar");
 
@@ -174,6 +181,7 @@ public class TelaFicha extends JFrame {
         });
 
         painelBotoes.add(botaoEditar);
+        painelBotoes.add(botaoRolar);
         painelBotoes.add(botaoExcluir);
         painelBotoes.add(botaoFechar);
 
