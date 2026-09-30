@@ -25,9 +25,7 @@ public class TelaPrincipal extends JFrame {
                 BorderFactory.createEmptyBorder(20, 20, 20, 20)
         );
 
-        // =========================
         // TÍTULO
-        // =========================
 
         JLabel titulo = new JLabel(
                 "Bem-vindo ao sistema!"
@@ -46,9 +44,7 @@ public class TelaPrincipal extends JFrame {
                 BorderLayout.NORTH
         );
 
-        // =========================
         // LISTA DE CAMPANHAS
-        // =========================
 
         JPanel painelCampanhas = new JPanel();
 
@@ -73,9 +69,7 @@ public class TelaPrincipal extends JFrame {
                 BorderLayout.CENTER
         );
 
-        // =========================
         // BOTÕES
-        // =========================
 
         JPanel painelBotoes = new JPanel();
 
@@ -98,9 +92,7 @@ public class TelaPrincipal extends JFrame {
                 BorderLayout.SOUTH
         );
 
-        // =========================
         // CRIAR CAMPANHA
-        // =========================
 
         botaoCriarCampanha.addActionListener(e -> {
 
@@ -112,9 +104,7 @@ public class TelaPrincipal extends JFrame {
 
         });
 
-        // =========================
         // SAIR
-        // =========================
 
         botaoSair.addActionListener(e -> {
 
@@ -130,8 +120,10 @@ public class TelaPrincipal extends JFrame {
 
     public static void main(String[] args) {
 
-        new TelaPrincipal(null)
-                .setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            new TelaPrincipal(null)
+                    .setVisible(true);
+        });
 
     }
 }
