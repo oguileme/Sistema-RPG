@@ -15,10 +15,15 @@ public class Usuario {
         this.email = email;
         this.senha = senha;
     }
-    public String getNome(){return this.nome;}
+
+    public String getNome() {
+        return this.nome;
+    }
+
     public String getUsuario() {
         return this.usuario;
     }
+
     public static Usuario carregarUsuario(String usuario) {
 
         File arquivo = new File(
@@ -75,9 +80,7 @@ public class Usuario {
         }
     }
 
-
     public void salvarUsuario() {
-
 
         try {
 
@@ -88,16 +91,17 @@ public class Usuario {
                 pasta.mkdirs();
             }
 
-            FileWriter arquivo = new FileWriter(
-                    "Usuarios/" + usuario + ".txt"
-            );
+            try (
+                    FileWriter arquivo = new FileWriter(
+                            "Usuarios/" + usuario + ".txt"
+                    )
+            ) {
 
-            arquivo.write("Nome: " + nome + "\n");
-            arquivo.write("Usuário: " + usuario + "\n");
-            arquivo.write("E-mail: " + email + "\n");
-            arquivo.write("Senha: " + senha + "\n");
-
-            arquivo.close();
+                arquivo.write("Nome: " + nome + "\n");
+                arquivo.write("Usuário: " + usuario + "\n");
+                arquivo.write("E-mail: " + email + "\n");
+                arquivo.write("Senha: " + senha + "\n");
+            }
 
         } catch (IOException e) {
             System.out.println("Erro ao salvar o usuário.");
@@ -114,11 +118,12 @@ public class Usuario {
             return null;
         }
 
-        try {
-
-            BufferedReader leitor = new BufferedReader(
-                    new FileReader(arquivo)
-            );
+        try (
+                BufferedReader leitor =
+                        new BufferedReader(
+                                new FileReader(arquivo)
+                        )
+        ) {
 
             String linha;
 
@@ -146,8 +151,6 @@ public class Usuario {
                 }
             }
 
-            leitor.close();
-
             if (senha.equals(senhaArquivo)) {
 
                 return new Usuario(
@@ -165,6 +168,4 @@ public class Usuario {
             return null;
         }
     }
-
-
 }
