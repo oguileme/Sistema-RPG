@@ -68,10 +68,25 @@ public class TelaCadastro extends JFrame {
         // Botão cadastrar
         botaoCadastrar.addActionListener(e -> {
 
-            String nome = campoNome.getText();
-            String usuario = campoUsuario.getText();
-            String email = campoEmail.getText();
+            String nome = campoNome.getText().trim();
+            String usuario = campoUsuario.getText().trim();
+            String email = campoEmail.getText().trim();
             String senha = new String(campoSenha.getPassword());
+
+            if (nome.isEmpty() ||
+                    usuario.isEmpty() ||
+                    email.isEmpty() ||
+                    senha.isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Preencha todos os campos.",
+                        "Atenção",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
 
             Usuario novoUsuario = new Usuario(
                     nome,
@@ -86,8 +101,8 @@ public class TelaCadastro extends JFrame {
                     this,
                     "Usuário cadastrado com sucesso!"
             );
-            // Botão login
 
+            // Botão login
 
             // Abre a tela de login
             new TelaLogin().setVisible(true);
@@ -102,6 +117,7 @@ public class TelaCadastro extends JFrame {
 
             dispose();
         });
+
         // Botão cancelar
         botaoCancelar.addActionListener(e -> dispose());
 
@@ -109,6 +125,8 @@ public class TelaCadastro extends JFrame {
     }
 
     public static void main(String[] args) {
-        new TelaCadastro().setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            new TelaCadastro().setVisible(true);
+        });
     }
 }
