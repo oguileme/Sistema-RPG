@@ -47,8 +47,8 @@ public class Armadura extends Equipamento {
     }
 
     @Override
-    public String getTipo() {
-        return "Armadura";
+    public TipoEquipamento getTipo() {
+        return TipoEquipamento.Armadura;
     }
 
     @Override

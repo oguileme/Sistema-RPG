@@ -63,7 +63,8 @@ public class TelaEdicaoEquipamento extends JFrame {
         campoTipo = new JComboBox<String>(
                 new String[]{"Equipamento", "Arma", "Armadura"}
         );
-        campoTipo.setSelectedItem(equipamento.getTipo());
+        campoTipo.setSelectedItem(equipamento.getTipo().toString());
+        mostrarCamposDoTipo(equipamento.getTipo().toString());
         campoTipo.setEnabled(false);
 
         JPanel painelTipo = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
@@ -138,7 +139,7 @@ public class TelaEdicaoEquipamento extends JFrame {
         painelPrincipal.add(painelBotoes, BorderLayout.SOUTH);
 
         // Mostra os campos do tipo do equipamento
-        mostrarCamposDoTipo(equipamento.getTipo());
+        mostrarCamposDoTipo(equipamento.getTipo().toString());
 
         // Botão salvar alterações
         botaoSalvar.addActionListener(e -> salvarAlteracoes());

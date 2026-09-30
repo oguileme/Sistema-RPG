@@ -139,7 +139,7 @@ public class TelaInventario extends JFrame {
         //recarrega do arquivo, para não colocar na mochila o mesmo
         //objeto que a tela de catálogo está usando
         Equipamento doArquivo = Equipamento.carregarPorTipo(
-                disponivel.getTipo(),
+                disponivel.getTipo().toString(),
                 disponivel.getNome()
         );
 

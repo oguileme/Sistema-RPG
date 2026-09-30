@@ -22,6 +22,24 @@ import java.util.Map;
  */
 public class Equipamento {
 
+    public enum TipoEquipamento {
+
+        Equipamento("Equipamento"),
+        Arma("Arma"),
+        Armadura("Armadura");
+
+        private final String nome;
+
+        TipoEquipamento(String nome) {
+            this.nome = nome;
+        }
+
+        @Override
+        public String toString() {
+            return nome;
+        }
+    }
+
     private String nome;
     private int quantidade;
     private int carga;
@@ -75,8 +93,8 @@ public class Equipamento {
     }
 
     // tipo do equipamento, sobrescrito pelas classes filhas
-    public String getTipo() {
-        return "Equipamento";
+    public TipoEquipamento getTipo() {
+        return TipoEquipamento.Equipamento;
     }
 
     // pasta onde o equipamento é salvo, sobrescrita pelas classes filhas
