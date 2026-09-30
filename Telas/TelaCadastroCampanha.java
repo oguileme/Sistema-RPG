@@ -2,6 +2,7 @@ package Telas;
 
 import classes.Campanha;
 import classes.Usuario;
+import classes.ValidadorNome;
 
 import javax.swing.*;
 import java.awt.*;
@@ -117,15 +118,21 @@ public class TelaCadastroCampanha extends JFrame {
             String descricao =
                     campoDescricao.getText();
 
-            if (nome.isEmpty()) {
+            String erroNome = ValidadorNome.erro(nome);
+
+            if (erroNome != null) {
 
                 JOptionPane.showMessageDialog(
                         this,
-                        "Digite o nome da campanha."
+                        erroNome,
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE
                 );
 
                 return;
             }
+
+            nome = nome.trim();
 
             Campanha campanha =
                     new Campanha(

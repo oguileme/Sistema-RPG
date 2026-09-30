@@ -6,6 +6,7 @@ import classes.Ficha;
 import classes.NPC;
 import classes.Protagonista;
 import classes.Usuario;
+import classes.ValidadorNome;
 
 import javax.swing.*;
 import java.awt.*;
@@ -204,17 +205,21 @@ public class TelaCadastroFicha extends JFrame {
                 String nome = campoNome.getText();
                 String classe = campoClasse.getText();
 
-                if (nome.trim().isEmpty()) {
+                String erroNome = ValidadorNome.erro(nome);
+
+                if (erroNome != null) {
 
                     JOptionPane.showMessageDialog(
                             this,
-                            "Digite o nome da ficha.",
+                            erroNome,
                             "Erro",
                             JOptionPane.ERROR_MESSAGE
                     );
 
                     return;
                 }
+
+                nome = nome.trim();
 
                 int vidaMax = Integer.parseInt(campoVidaMax.getText());
                 int vidaAtual = Integer.parseInt(campoVidaAtual.getText());

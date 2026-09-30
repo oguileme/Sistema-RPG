@@ -251,15 +251,13 @@ public class Campanha {
 
     public String editar(String novoNome, String novaDescricao) {
 
+        String erroNome = ValidadorNome.erro(novoNome);
+
+        if (erroNome != null) {
+            return erroNome;
+        }
+
         novoNome = novoNome.trim();
-
-        if (novoNome.isEmpty()) {
-            return "Digite o nome da campanha.";
-        }
-
-        if (novoNome.matches(".*[\\/:*?\"<>|].*")) {
-            return "O nome não pode conter: \\ / : * ? \" < > |";
-        }
 
         // Só a descrição mudou
         if (novoNome.equals(nome)) {

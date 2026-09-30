@@ -3,6 +3,7 @@ package Telas;
 import classes.Arma;
 import classes.Armadura;
 import classes.Equipamento;
+import classes.ValidadorNome;
 
 import javax.swing.*;
 import java.awt.*;
@@ -179,11 +180,13 @@ public class TelaCadastroEquipamento extends JFrame {
 
             String nome = campoNome.getText().trim();
 
-            if (nome.isEmpty()) {
+            String erroNome = ValidadorNome.erro(nome);
+
+            if (erroNome != null) {
 
                 JOptionPane.showMessageDialog(
                         this,
-                        "Preencha o nome do equipamento.",
+                        erroNome,
                         "Aviso",
                         JOptionPane.WARNING_MESSAGE
                 );
