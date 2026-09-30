@@ -5,8 +5,8 @@ public class Armadura extends Equipamento{
     private int maxDestreza;
     private int penalidade;
 
-    public Armadura(String nome, int quantidade, int carga, int bonusCA, int maxDestreza, int penalidade) {
-        super(nome, quantidade, carga);
+    public Armadura(String nome, int quantidade, int carga, String descricao, int bonusCA, int maxDestreza, int penalidade) {
+        super(nome, quantidade, carga, descricao);
         this.bonusCA = bonusCA;
         this.maxDestreza = maxDestreza;
         this.penalidade = penalidade;
