@@ -1,7 +1,11 @@
 package classes;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Arma extends Equipamento{
     private String tipoDano;
@@ -41,10 +45,24 @@ public class Arma extends Equipamento{
         this.pontosParaCritico = pontosParaCritico;
     }
 
+    @Override
+    public String getTipo() {
+        return "Arma";
+    }
+
+    @Override
+    protected String getPasta() {
+        return "Armas";
+    }
+
     //salvar arma em arquivo .txt
     public void salvarArma() {
+        garantirPasta();
+
         try {
-            FileWriter arquivo = new FileWriter("Armas/" + getNome() + ".txt");
+            FileWriter arquivo = new FileWriter(
+                    getPasta() + "/" + getNome() + ".txt"
+            );
             arquivo.write("Nome: " + getNome() + "\n");
             arquivo.write("Quantidade: " + getQuantidade() + "\n");
             arquivo.write("Carga: " + getCarga() + "\n");
@@ -56,5 +74,53 @@ public class Arma extends Equipamento{
         } catch (IOException e) {
             System.out.println("Erro ao salvar arma: " + e.getMessage());
         }
+    }
+
+    //carrega uma arma salva em .txt, devolve null se não existir
+    public static Arma carregar(String nome) {
+
+        File arquivo = new File("Armas/" + nome + ".txt");
+
+        if (!arquivo.exists()) {
+            return null;
+        }
+
+        Map<String, String> campos = lerCampos(arquivo.getPath());
+
+        return new Arma(
+                lerTexto(campos, "Nome"),
+                lerInteiro(campos, "Quantidade"),
+                lerInteiro(campos, "Carga"),
+                lerTexto(campos, "Descrição"),
+                lerTexto(campos, "Tipo de Dano"),
+                lerDecimal(campos, "Alcance"),
+                lerInteiro(campos, "Pontos para Crítico")
+        );
+    }
+
+    //lista todas as armas salvas na pasta
+    public static List<Equipamento> listar() {
+
+        List<Equipamento> armas = new ArrayList<>();
+
+        File[] arquivos = new File("Armas").listFiles();
+
+        if (arquivos == null) {
+            return armas;
+        }
+
+        for (File arquivo : arquivos) {
+
+            if (arquivo.getName().endsWith(".txt")) {
+
+                Arma arma = Arma.carregar(nomeDoArquivo(arquivo));
+
+                if (arma != null) {
+                    armas.add(arma);
+                }
+            }
+        }
+
+        return armas;
     }
 }
