@@ -1,18 +1,19 @@
 package classes;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Armadura extends Equipamento{
+public class Armadura extends Equipamento {
+
     private int bonusCA;
     private int maxDestreza;
     private int penalidade;
 
-    public Armadura(String nome, int quantidade, int carga, String descricao, int bonusCA, int maxDestreza, int penalidade) {
+    public Armadura(String nome, int quantidade, int carga, String descricao,
+                    int bonusCA, int maxDestreza, int penalidade) {
         super(nome, quantidade, carga, descricao);
         this.bonusCA = bonusCA;
         this.maxDestreza = maxDestreza;
@@ -20,6 +21,7 @@ public class Armadura extends Equipamento{
     }
 
     // getters e setters
+
     public int getBonusCA() {
         return bonusCA;
     }
@@ -54,37 +56,15 @@ public class Armadura extends Equipamento{
         return "Armaduras";
     }
 
-    //metodo para salvar armadura em arquivo.txt
-    public void salvarArmadura() {
-        garantirPasta();
-
-        try {
-            FileWriter arquivo = new FileWriter(
-                    getPasta() + "/" + getNome() + ".txt"
-            );
-            arquivo.write("Nome: " + getNome() + "\n");
-            arquivo.write("Quantidade: " + getQuantidade() + "\n");
-            arquivo.write("Carga: " + getCarga() + "\n");
-            arquivo.write("Descrição: " + getDescricao() + "\n");
-            arquivo.write("Bônus CA: " + bonusCA + "\n");
-            arquivo.write("Máximo Destreza: " + maxDestreza + "\n");
-            arquivo.write("Penalidade: " + penalidade + "\n");
-            arquivo.close();
-        } catch (IOException e) {
-            System.out.println("Erro ao salvar armadura: " + e.getMessage());
-        }
+    @Override
+    protected void salvarCamposExtras(PrintWriter w) {
+        w.println("Bônus CA: " + bonusCA);
+        w.println("Máximo Destreza: " + maxDestreza);
+        w.println("Penalidade: " + penalidade);
     }
 
-    //carrega uma armadura salva em .txt, devolve null se não existir
-    public static Armadura carregar(String nome) {
-
-        File arquivo = new File("Armaduras/" + nome + ".txt");
-
-        if (!arquivo.exists()) {
-            return null;
-        }
-
-        Map<String, String> campos = lerCampos(arquivo.getPath());
+    // método estático: esconde o da base, não sobrescreve
+    protected static Equipamento carregarDe(Map<String, String> campos) {
 
         return new Armadura(
                 lerTexto(campos, "Nome"),
@@ -97,26 +77,29 @@ public class Armadura extends Equipamento{
         );
     }
 
-    //lista todas as armaduras salvas na pasta
-    public static List<Equipamento> listar() {
+    /**
+     * Carrega uma armadura salva em .txt.
+     *
+     * @return null se não existir ou se o arquivo estiver ilegível
+     */
+    public static Armadura carregarArmadura(String nome) {
+
+        Map<String, String> campos = lerArquivo("Armaduras", nome);
+
+        return campos == null ? null : (Armadura) carregarDe(campos);
+    }
+
+    // lista todas as armaduras salvas na pasta
+    public static List<Equipamento> listarArmaduras() {
 
         List<Equipamento> armaduras = new ArrayList<>();
 
-        File[] arquivos = new File("Armaduras").listFiles();
+        for (File arquivo : arquivosDaPasta("Armaduras")) {
 
-        if (arquivos == null) {
-            return armaduras;
-        }
+            Armadura armadura = carregarArmadura(nomeDoArquivo(arquivo));
 
-        for (File arquivo : arquivos) {
-
-            if (arquivo.getName().endsWith(".txt")) {
-
-                Armadura armadura = Armadura.carregar(nomeDoArquivo(arquivo));
-
-                if (armadura != null) {
-                    armaduras.add(armadura);
-                }
+            if (armadura != null) {
+                armaduras.add(armadura);
             }
         }
 

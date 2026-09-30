@@ -2,15 +2,26 @@ package classes;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Base de Arma, Armadura e Equipamento.
+ *
+ * A gravação, a leitura, a renomeação e a exclusão ficam aqui uma vez
+ * só: cada subclasse acrescenta os seus campos em salvarCamposExtras e
+ * monta o próprio objeto em carregarDe.
+ */
 public class Equipamento {
+
     private String nome;
     private int quantidade;
     private int carga;
@@ -24,6 +35,7 @@ public class Equipamento {
     }
 
     // Getters e Setters
+
     public String getNome() {
         return nome;
     }
@@ -77,39 +89,145 @@ public class Equipamento {
         new File(getPasta()).mkdirs();
     }
 
-    //salvar arquivo .txt
-    public void salvarEquipamento() {
+    // arquivo deste equipamento, único ponto de montagem do caminho
+    public File getArquivo() {
+        return new File(getPasta(), nome + ".txt");
+    }
+
+    // =========================
+    // GRAVAÇÃO
+    // =========================
+
+    /**
+     * Grava o equipamento em arquivo, com os campos comuns mais os
+     * campos extras da subclasse.
+     *
+     * @return false se não foi possível gravar
+     */
+    public boolean salvar() {
+
         garantirPasta();
 
+        // PrintWriter esconde o erro de escrita numa flag interna e
+        // nunca lança, então um disco cheio passaria por sucesso.
+        // BufferedWriter propaga a IOException de verdade.
+        try (PrintWriter w = new PrintWriter(Files.newBufferedWriter(
+                getArquivo().toPath(),
+                StandardCharsets.UTF_8))) {
+
+            w.println("Nome: " + nome);
+            w.println("Quantidade: " + quantidade);
+            w.println("Carga: " + carga);
+            w.println("Descrição: " + (descricao == null ? "" : descricao));
+
+            salvarCamposExtras(w);
+
+        } catch (IOException | RuntimeException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Campos extras no arquivo, sobrescrito pelas classes filhas
+    protected void salvarCamposExtras(PrintWriter w) {
+    }
+
+    // =========================
+    // RENOMEAR E EXCLUIR
+    // =========================
+
+    /**
+     * Renomeia o arquivo e atualiza o nome em memória.
+     *
+     * @return null se deu certo, ou a mensagem de erro
+     */
+    public String renomearArquivo(String novoNome) {
+
+        String erro = ValidadorNome.erro(novoNome);
+
+        if (erro != null) {
+            return erro;
+        }
+
+        novoNome = novoNome.trim();
+
+        File antigo = getArquivo();
+        File novo = new File(antigo.getParentFile(), novoNome + ".txt");
+
+        // Se ainda não existe arquivo, não há o que renomear
+        if (!antigo.exists()) {
+            this.nome = novoNome;
+            return null;
+        }
+
+        // Já existe outro equipamento com esse nome
+        // (ignora se for só troca de maiúscula/minúscula)
+        if (novo.exists() && !antigo.getName().equalsIgnoreCase(novo.getName())) {
+            return "Já existe um equipamento com esse nome.";
+        }
+
         try {
-            FileWriter arquivo = new FileWriter(
-                    getPasta() + "/" + nome + ".txt"
+
+            Files.move(
+                    antigo.toPath(),
+                    novo.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
             );
-            arquivo.write("Nome: " + nome + "\n");
-            arquivo.write("Quantidade: " + quantidade + "\n");
-            arquivo.write("Carga: " + carga + "\n");
-            arquivo.write("Descrição: " + descricao + "\n");
-            arquivo.close();
+
+            this.nome = novoNome;
+
+            return null;
+
         } catch (IOException e) {
-            System.out.println("Erro ao salvar o equipamento.");
+            return "Erro ao renomear o equipamento: " + e.getMessage();
         }
     }
 
-    //nome do arquivo sem a extensão
-    protected static String nomeDoArquivo(File arquivo) {
-        return arquivo.getName().replace(".txt", "");
+    /**
+     * Apaga o arquivo do equipamento.
+     *
+     * @return true se o arquivo não existe mais
+     */
+    public boolean excluir() {
+
+        File arquivo = getArquivo();
+
+        if (!arquivo.exists()) {
+            return true;
+        }
+
+        return arquivo.delete();
     }
 
-    //lê um arquivo .txt e devolve cada campo no formato "chave" -> "valor"
-    protected static Map<String, String> lerCampos(String caminho) {
+    // =========================
+    // LEITURA
+    // =========================
+
+    // nome do arquivo sem a extensão ".txt" do final
+    protected static String nomeDoArquivo(File arquivo) {
+
+        String nome = arquivo.getName();
+
+        if (nome.endsWith(".txt")) {
+            nome = nome.substring(0, nome.length() - ".txt".length());
+        }
+
+        return nome;
+    }
+
+    /**
+     * Lê um arquivo .txt e devolve cada campo no formato "chave" -> "valor".
+     * Devolve null se o arquivo não pôde ser lido.
+     */
+    protected static Map<String, String> lerCampos(File arquivo) {
 
         Map<String, String> campos = new LinkedHashMap<>();
 
-        try {
-
-            BufferedReader leitor = new BufferedReader(
-                    new FileReader(caminho)
-            );
+        try (BufferedReader leitor = new BufferedReader(
+                new InputStreamReader(
+                        Files.newInputStream(arquivo.toPath()),
+                        StandardCharsets.UTF_8))) {
 
             String linha;
 
@@ -125,16 +243,14 @@ public class Equipamento {
                 }
             }
 
-            leitor.close();
-
-        } catch (IOException e) {
-            System.out.println("Erro ao ler o arquivo: " + caminho);
+        } catch (IOException | RuntimeException e) {
+            return null;
         }
 
         return campos;
     }
 
-    //lê um campo numérico inteiro
+    // campo numérico inteiro; valor ilegível vira 0 em vez de estourar
     protected static int lerInteiro(Map<String, String> campos, String chave) {
 
         String valor = campos.get(chave);
@@ -143,10 +259,14 @@ public class Equipamento {
             return 0;
         }
 
-        return Integer.parseInt(valor.trim());
+        try {
+            return Integer.parseInt(valor.trim());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
-    //lê um campo numérico com casas decimais
+    // campo numérico com casas decimais; valor ilegível vira 0.0
     protected static Double lerDecimal(Map<String, String> campos, String chave) {
 
         String valor = campos.get(chave);
@@ -155,10 +275,14 @@ public class Equipamento {
             return 0.0;
         }
 
-        return Double.parseDouble(valor.trim());
+        try {
+            return Double.parseDouble(valor.trim());
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
 
-    //lê um campo de texto
+    // campo de texto
     protected static String lerTexto(Map<String, String> campos, String chave) {
 
         String valor = campos.get(chave);
@@ -170,16 +294,8 @@ public class Equipamento {
         return valor.trim();
     }
 
-    //carrega um equipamento salvo em .txt, devolve null se não existir
-    public static Equipamento carregar(String nome) {
-
-        File arquivo = new File("Equipamentos/" + nome + ".txt");
-
-        if (!arquivo.exists()) {
-            return null;
-        }
-
-        Map<String, String> campos = lerCampos(arquivo.getPath());
+    // Monta o objeto a partir dos campos já lidos, sobrescrito pelas filhas
+    protected static Equipamento carregarDe(Map<String, String> campos) {
 
         return new Equipamento(
                 lerTexto(campos, "Nome"),
@@ -189,27 +305,83 @@ public class Equipamento {
         );
     }
 
-    //lista todos os equipamentos salvos na pasta
-    public static List<Equipamento> listar() {
+    /**
+     * Abre o arquivo nome+".txt" da pasta indicada e devolve seus campos.
+     * Devolve null se o arquivo não existir ou não der para ler.
+     */
+    protected static Map<String, String> lerArquivo(String pasta, String nome) {
+
+        File arquivo = new File(pasta, nome + ".txt");
+
+        if (!arquivo.exists()) {
+            return null;
+        }
+
+        return lerCampos(arquivo);
+    }
+
+    /**
+     * Carrega um equipamento salvo em .txt.
+     *
+     * @return null se não existir ou se o arquivo estiver ilegível
+     */
+    public static Equipamento carregarEquipamento(String nome) {
+
+        Map<String, String> campos = lerArquivo("Equipamentos", nome);
+
+        return campos == null ? null : carregarDe(campos);
+    }
+
+    // =========================
+    // LISTAGEM
+    // =========================
+
+    /**
+     * Lista todos os equipamentos salvos, de todas as pastas.
+     */
+    public static List<Equipamento> listarTodos() {
+
+        List<Equipamento> todos = new ArrayList<>();
+
+        todos.addAll(listarEquipamentos());
+        todos.addAll(Arma.listarArmas());
+        todos.addAll(Armadura.listarArmaduras());
+
+        return todos;
+    }
+
+    // lista os equipamentos salvos em uma pasta
+    protected static List<File> arquivosDaPasta(String pasta) {
+
+        List<File> arquivos = new ArrayList<>();
+
+        File[] encontrados = new File(pasta).listFiles(
+                (dir, nome) -> nome.endsWith(".txt")
+        );
+
+        if (encontrados == null) {
+            return arquivos;
+        }
+
+        for (File arquivo : encontrados) {
+            arquivos.add(arquivo);
+        }
+
+        return arquivos;
+    }
+
+    // lista todos os equipamentos simples
+    public static List<Equipamento> listarEquipamentos() {
 
         List<Equipamento> equipamentos = new ArrayList<>();
 
-        File[] arquivos = new File("Equipamentos").listFiles();
+        for (File arquivo : arquivosDaPasta("Equipamentos")) {
 
-        if (arquivos == null) {
-            return equipamentos;
-        }
+            Equipamento equipamento =
+                    carregarEquipamento(nomeDoArquivo(arquivo));
 
-        for (File arquivo : arquivos) {
-
-            if (arquivo.getName().endsWith(".txt")) {
-
-                Equipamento equipamento =
-                        Equipamento.carregar(nomeDoArquivo(arquivo));
-
-                if (equipamento != null) {
-                    equipamentos.add(equipamento);
-                }
+            if (equipamento != null) {
+                equipamentos.add(equipamento);
             }
         }
 

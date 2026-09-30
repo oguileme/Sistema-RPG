@@ -1,7 +1,5 @@
 package Telas;
 
-import classes.Arma;
-import classes.Armadura;
 import classes.Equipamento;
 
 import javax.swing.*;
@@ -108,11 +106,7 @@ public class TelaEquipamentos extends JFrame {
     //carrega os equipamentos salvos de todas as pastas
     private void carregarEquipamentos() {
 
-        equipamentos = new ArrayList<>();
-
-        equipamentos.addAll(Equipamento.listar());
-        equipamentos.addAll(Arma.listar());
-        equipamentos.addAll(Armadura.listar());
+        equipamentos = Equipamento.listarTodos();
     }
 
     //mostra os equipamentos na lista

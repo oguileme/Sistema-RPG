@@ -240,18 +240,17 @@ public class TelaCadastroEquipamento extends JFrame {
                 );
             }
 
-            // Salva de acordo com o tipo do equipamento
-            if (equipamento instanceof Arma) {
+            // salvar() já chama os campos extras do tipo correto
+            if (!equipamento.salvar()) {
 
-                ((Arma) equipamento).salvarArma();
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Não foi possível salvar o equipamento.",
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE
+                );
 
-            } else if (equipamento instanceof Armadura) {
-
-                ((Armadura) equipamento).salvarArmadura();
-
-            } else {
-
-                equipamento.salvarEquipamento();
+                return;
             }
 
             JOptionPane.showMessageDialog(

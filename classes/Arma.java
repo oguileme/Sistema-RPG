@@ -1,18 +1,18 @@
 package classes;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Arma extends Equipamento{
+public class Arma extends Equipamento {
+
     private String tipoDano;
     private Double alcance;
     private int pontosParaCritico;
 
-    public Arma(String nome, int quantidade, int carga, String descricao, String tipoDano, Double alcance, int pontosParaCritico) {
+    public Arma(String nome, int quantidade, int carga, String descricao,
+                String tipoDano, Double alcance, int pontosParaCritico) {
         super(nome, quantidade, carga, descricao);
         this.tipoDano = tipoDano;
         this.alcance = alcance;
@@ -20,6 +20,7 @@ public class Arma extends Equipamento{
     }
 
     // Getters e Setters
+
     public String getTipoDano() {
         return tipoDano;
     }
@@ -27,7 +28,6 @@ public class Arma extends Equipamento{
     public void setTipoDano(String tipoDano) {
         this.tipoDano = tipoDano;
     }
-
 
     public Double getAlcance() {
         return alcance;
@@ -55,37 +55,15 @@ public class Arma extends Equipamento{
         return "Armas";
     }
 
-    //salvar arma em arquivo .txt
-    public void salvarArma() {
-        garantirPasta();
-
-        try {
-            FileWriter arquivo = new FileWriter(
-                    getPasta() + "/" + getNome() + ".txt"
-            );
-            arquivo.write("Nome: " + getNome() + "\n");
-            arquivo.write("Quantidade: " + getQuantidade() + "\n");
-            arquivo.write("Carga: " + getCarga() + "\n");
-            arquivo.write("Descrição: " + getDescricao() + "\n");
-            arquivo.write("Tipo de Dano: " + tipoDano + "\n");
-            arquivo.write("Alcance: " + alcance + "\n");
-            arquivo.write("Pontos para Crítico: " + pontosParaCritico + "\n");
-            arquivo.close();
-        } catch (IOException e) {
-            System.out.println("Erro ao salvar arma: " + e.getMessage());
-        }
+    @Override
+    protected void salvarCamposExtras(PrintWriter w) {
+        w.println("Tipo de Dano: " + (tipoDano == null ? "" : tipoDano));
+        w.println("Alcance: " + (alcance == null ? 0.0 : alcance));
+        w.println("Pontos para Crítico: " + pontosParaCritico);
     }
 
-    //carrega uma arma salva em .txt, devolve null se não existir
-    public static Arma carregar(String nome) {
-
-        File arquivo = new File("Armas/" + nome + ".txt");
-
-        if (!arquivo.exists()) {
-            return null;
-        }
-
-        Map<String, String> campos = lerCampos(arquivo.getPath());
+    // método estático: esconde o da base, não sobrescreve
+    protected static Equipamento carregarDe(Map<String, String> campos) {
 
         return new Arma(
                 lerTexto(campos, "Nome"),
@@ -98,26 +76,29 @@ public class Arma extends Equipamento{
         );
     }
 
-    //lista todas as armas salvas na pasta
-    public static List<Equipamento> listar() {
+    /**
+     * Carrega uma arma salva em .txt.
+     *
+     * @return null se não existir ou se o arquivo estiver ilegível
+     */
+    public static Arma carregarArma(String nome) {
+
+        Map<String, String> campos = lerArquivo("Armas", nome);
+
+        return campos == null ? null : (Arma) carregarDe(campos);
+    }
+
+    // lista todas as armas salvas na pasta
+    public static List<Equipamento> listarArmas() {
 
         List<Equipamento> armas = new ArrayList<>();
 
-        File[] arquivos = new File("Armas").listFiles();
+        for (java.io.File arquivo : arquivosDaPasta("Armas")) {
 
-        if (arquivos == null) {
-            return armas;
-        }
+            Arma arma = carregarArma(nomeDoArquivo(arquivo));
 
-        for (File arquivo : arquivos) {
-
-            if (arquivo.getName().endsWith(".txt")) {
-
-                Arma arma = Arma.carregar(nomeDoArquivo(arquivo));
-
-                if (arma != null) {
-                    armas.add(arma);
-                }
+            if (arma != null) {
+                armas.add(arma);
             }
         }
 
