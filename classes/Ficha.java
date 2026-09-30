@@ -224,12 +224,19 @@ public abstract class Ficha {
         return getArquivo().delete();
     }
 
-    public void salvarFicha() {
+    // Retorna false se não foi possível gravar, para a tela
+    // não anunciar sucesso quando o arquivo não existe.
+    public boolean salvarFicha() {
 
         File pasta = new File("Fichas/" + pastaCampanha());
         pasta.mkdirs();
 
-        try (PrintWriter w = new PrintWriter(new File(pasta, nome + ".txt"), "UTF-8")) {
+        // PrintWriter esconde o erro de escrita numa flag interna e nunca
+        // lança, então um disco cheio passaria por sucesso. BufferedWriter
+        // propaga a IOException de verdade.
+        try (PrintWriter w = new PrintWriter(Files.newBufferedWriter(
+                new File(pasta, nome + ".txt").toPath(),
+                StandardCharsets.UTF_8))) {
 
             w.println("Tipo: " + getTipo());
             w.println("Campanha: " + pastaCampanha());
@@ -257,9 +264,13 @@ public abstract class Ficha {
 
             salvarRolagens(w);
 
-        } catch (IOException e) {
-            System.out.println("Erro ao salvar a ficha: " + e.getMessage());
+        } catch (IOException | RuntimeException e) {
+            // System.out não aparece na interface, então quem chama
+            // precisa saber que falhou
+            return false;
         }
+
+        return true;
     }
 
     // Grava o histórico de rolagens da ficha

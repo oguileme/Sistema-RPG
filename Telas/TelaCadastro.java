@@ -95,7 +95,17 @@ public class TelaCadastro extends JFrame {
                     senha
             );
 
-            novoUsuario.salvarUsuario();
+            if (!novoUsuario.salvarUsuario()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Não foi possível salvar o usuário.",
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+                return;
+            }
 
             JOptionPane.showMessageDialog(
                     this,

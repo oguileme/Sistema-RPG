@@ -291,7 +291,17 @@ public class TelaCadastroFicha extends JFrame {
                     ficha.setDonoUsuario(usuario.getUsuario());
                 }
 
-                ficha.salvarFicha();
+                if (!ficha.salvarFicha()) {
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Não foi possível salvar a ficha.",
+                            "Erro",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                    return;
+                }
 
                 // Avisa a tela da campanha para atualizar a lista
                 if (this.aoSalvar != null) {

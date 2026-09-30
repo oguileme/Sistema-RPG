@@ -134,7 +134,17 @@ public class TelaCadastroCampanha extends JFrame {
                             usuario
                     );
 
-            campanha.salvarCampanha();
+            if (!campanha.salvarCampanha()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Não foi possível criar a campanha.",
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+                return;
+            }
 
             JOptionPane.showMessageDialog(
                     this,

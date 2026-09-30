@@ -1,6 +1,8 @@
 package classes;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public class Usuario {
 
@@ -37,7 +39,10 @@ public class Usuario {
         try (
                 BufferedReader leitor =
                         new BufferedReader(
-                                new FileReader(arquivo)
+                                new InputStreamReader(
+                                        new FileInputStream(arquivo),
+                                        StandardCharsets.UTF_8
+                                )
                         )
         ) {
 
@@ -80,7 +85,8 @@ public class Usuario {
         }
     }
 
-    public void salvarUsuario() {
+    // Retorna false se não foi possível gravar
+    public boolean salvarUsuario() {
 
         try {
 
@@ -91,21 +97,21 @@ public class Usuario {
                 pasta.mkdirs();
             }
 
-            try (
-                    FileWriter arquivo = new FileWriter(
-                            "Usuarios/" + usuario + ".txt"
-                    )
-            ) {
+            try (PrintWriter arquivo = new PrintWriter(Files.newBufferedWriter(
+                    new File(pasta, usuario + ".txt").toPath(),
+                    StandardCharsets.UTF_8))) {
 
-                arquivo.write("Nome: " + nome + "\n");
-                arquivo.write("Usuário: " + usuario + "\n");
-                arquivo.write("E-mail: " + email + "\n");
-                arquivo.write("Senha: " + senha + "\n");
+                arquivo.println("Nome: " + nome);
+                arquivo.println("Usuário: " + usuario);
+                arquivo.println("E-mail: " + email);
+                arquivo.println("Senha: " + senha);
             }
 
-        } catch (IOException e) {
-            System.out.println("Erro ao salvar o usuário.");
+        } catch (IOException | RuntimeException e) {
+            return false;
         }
+
+        return true;
     }
 
     public static Usuario autenticar(String usuario, String senha) {
@@ -121,7 +127,10 @@ public class Usuario {
         try (
                 BufferedReader leitor =
                         new BufferedReader(
-                                new FileReader(arquivo)
+                                new InputStreamReader(
+                                        new FileInputStream(arquivo),
+                                        StandardCharsets.UTF_8
+                                )
                         )
         ) {
 

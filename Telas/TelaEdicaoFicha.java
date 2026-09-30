@@ -273,7 +273,17 @@ public class TelaEdicaoFicha extends JFrame {
                     }
                 }
 
-                fichaEditada.salvarFicha();
+                if (!fichaEditada.salvarFicha()) {
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Não foi possível salvar as alterações.",
+                            "Erro",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                    return;
+                }
 
                 new TelaFicha(fichaEditada).setVisible(true);
 

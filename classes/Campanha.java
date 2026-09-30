@@ -151,7 +151,9 @@ public class Campanha {
     // SALVAR CAMPANHA
     // =========================
 
-    public void salvarCampanha() {
+    // Retorna false se não foi possível gravar, para a tela
+    // não anunciar sucesso quando o arquivo não existe.
+    public boolean salvarCampanha() {
 
         File pasta = new File("Campanhas");
 
@@ -172,8 +174,11 @@ public class Campanha {
                         .replace("\n", " ")
                         .trim();
 
-        try (PrintWriter writer =
-                     new PrintWriter(arquivo, StandardCharsets.UTF_8)) {
+        // PrintWriter esconde o erro de escrita numa flag interna e
+        // nunca lança, então um disco cheio passaria por sucesso
+        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(
+                arquivo.toPath(),
+                StandardCharsets.UTF_8))) {
 
             writer.println("Nome: " + nome);
             writer.println("Descrição: " + descricaoEmUmaLinha);
@@ -187,16 +192,12 @@ public class Campanha {
                             (login == null ? "" : login)
             );
 
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
 
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Erro ao salvar campanha: "
-                            + e.getMessage(),
-                    "Erro",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            return false;
         }
+
+        return true;
     }
 
     // =========================
@@ -263,7 +264,11 @@ public class Campanha {
         // Só a descrição mudou
         if (novoNome.equals(nome)) {
             this.descricao = novaDescricao;
-            salvarCampanha();
+
+            if (!salvarCampanha()) {
+                return "Não foi possível salvar a campanha.";
+            }
+
             return null;
         }
 
@@ -311,7 +316,10 @@ public class Campanha {
         // 3) Atualiza os dados da campanha e regrava o arquivo
         this.nome = novoNome;
         this.descricao = novaDescricao;
-        salvarCampanha();
+
+        if (!salvarCampanha()) {
+            return "Não foi possível salvar a campanha.";
+        }
 
         // 4) Atualiza o nome da campanha dentro de cada ficha
         File[] arquivosFichas = pastaFichasNova.listFiles(
