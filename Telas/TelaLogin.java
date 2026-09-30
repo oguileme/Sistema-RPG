@@ -51,8 +51,20 @@ public class TelaLogin extends JFrame {
         // Botão Entrar
         entrarButton.addActionListener(e -> {
 
-            String nomeUsuario = usuarioField.getText();
+            String nomeUsuario = usuarioField.getText().trim();
             String senha = new String(senhaField.getPassword());
+
+            if (nomeUsuario.isEmpty() || senha.isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Preencha o usuário e a senha.",
+                        "Atenção",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
 
             Usuario usuarioLogado =
                     Usuario.autenticar(nomeUsuario, senha);
@@ -91,6 +103,8 @@ public class TelaLogin extends JFrame {
     }
 
     public static void main(String[] args) {
-        new TelaLogin().setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            new TelaLogin().setVisible(true);
+        });
     }
 }
