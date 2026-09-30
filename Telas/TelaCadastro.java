@@ -56,9 +56,11 @@ public class TelaCadastro extends JFrame {
         JPanel painelBotoes = new JPanel();
 
         JButton botaoCadastrar = new JButton("Cadastrar");
+        JButton botaoLogin = new JButton("Já tenho uma conta");
         JButton botaoCancelar = new JButton("Cancelar");
 
         painelBotoes.add(botaoCadastrar);
+        painelBotoes.add(botaoLogin);
         painelBotoes.add(botaoCancelar);
 
         painelPrincipal.add(painelBotoes, BorderLayout.SOUTH);
@@ -84,10 +86,22 @@ public class TelaCadastro extends JFrame {
                     this,
                     "Usuário cadastrado com sucesso!"
             );
+            // Botão login
 
+
+            // Abre a tela de login
+            new TelaLogin().setVisible(true);
+
+            // Fecha a tela de cadastro
             dispose();
         });
 
+        botaoLogin.addActionListener(event -> {
+
+            new TelaLogin().setVisible(true);
+
+            dispose();
+        });
         // Botão cancelar
         botaoCancelar.addActionListener(e -> dispose());
 

@@ -1,8 +1,6 @@
 package classes;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class Usuario {
 
@@ -38,6 +36,42 @@ public class Usuario {
 
         } catch (IOException e) {
             System.out.println("Erro ao salvar o usuário.");
+        }
+    }
+
+    public static boolean autenticar(String usuario, String senha) {
+
+        File arquivo = new File(
+                "Usuarios/" + usuario + ".txt"
+        );
+
+        if (!arquivo.exists()) {
+            return false;
+        }
+
+        try {
+
+            BufferedReader leitor = new BufferedReader(
+                    new FileReader(arquivo)
+            );
+
+            String linha;
+            String senhaArquivo = null;
+
+            while ((linha = leitor.readLine()) != null) {
+
+                if (linha.startsWith("Senha: ")) {
+                    senhaArquivo = linha.substring(7);
+                }
+            }
+
+            leitor.close();
+
+            return senha.equals(senhaArquivo);
+
+        } catch (IOException e) {
+
+            return false;
         }
     }
 }
