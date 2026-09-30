@@ -16,4 +16,5 @@ public class Protagonista extends Ficha{
                 atributos, rolagens, inventario);
         this.player = player;
     }
+    
 }

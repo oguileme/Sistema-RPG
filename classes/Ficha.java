@@ -1,5 +1,7 @@
 package classes;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 public abstract class Ficha {
@@ -125,6 +127,38 @@ public abstract class Ficha {
 
     public void setRolagens(List<Rolagem> rolagem){ this.rolagens = rolagem;}
 
+    public Atributos getAtributos() {
+        return atributos;
+    }
 
+    public void salvarFicha() {
+
+        try {
+            FileWriter arquivo = new FileWriter("Fichas/"+ nome + ".txt");
+
+            arquivo.write("Nome: " + nome + "\n");
+            arquivo.write("Classe: " + classe + "\n");
+            arquivo.write("Vida Máxima: " + vidaMax + "\n");
+            arquivo.write("Vida Atual: " + vidaAtual + "\n");
+            arquivo.write("Mana Máxima: " + manaMax + "\n");
+            arquivo.write("Mana Atual: " + manaAtual + "\n");
+            arquivo.write("Pontos de Experiência: " + pontosExp + "\n");
+            arquivo.write("Deslocamento: " + deslocamento + "\n");
+            arquivo.write("Dinheiro: " + dinheiro + "\n");
+
+            arquivo.write("\n--- ATRIBUTOS ---\n");
+            arquivo.write("Força: " + atributos.getForca() + "\n");
+            arquivo.write("Destreza: " + atributos.getDestreza() + "\n");
+            arquivo.write("Constituição: " + atributos.getConstituicao() + "\n");
+            arquivo.write("Inteligência: " + atributos.getInteligencia() + "\n");
+            arquivo.write("Sabedoria: " + atributos.getSabedoria() + "\n");
+            arquivo.write("Carisma: " + atributos.getCarisma() + "\n");
+
+            arquivo.close();
+
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar a ficha.");
+        }
+    }
 
 }

@@ -32,29 +32,6 @@ public class Inventario {
         this.cargaMax = cargaMax;
     }
 
-    public void mostrarEquipamentos() {
-        System.out.println("Equipamentos no inventário:");
-        for (Equipamento equipamento : equipamentos) {
-            System.out.println("- " + equipamento.getNome() + " (Quantidade: " + equipamento.getQuantidade() + ", Carga: " + equipamento.getCarga() + ")");
-        }
-    }
 
-    public boolean addEquipamento(Equipamento equipamento){
-        if(this.cargaAtual + equipamento.getCarga() >= this.cargaMax){
-            return false;
-        }
-        this.cargaAtual += equipamento.getCarga();
-        this.equipamentos.add(equipamento);
-        return true;
-    }
-
-    public boolean removeEquipamento(Equipamento equipamento){
-        if(!equipamentos.contains(equipamento)){
-            return false;
-        }
-        this.cargaAtual -= equipamento.getCarga();
-        this.equipamentos.remove(equipamento);
-        return true;
-    }
 
 }

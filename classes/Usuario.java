@@ -1,41 +1,43 @@
 package classes;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class Usuario {
+
     private String nome;
+    private String usuario;
     private String email;
     private String senha;
 
-    //**Método construtor de Usuario */
-    public Usuario(String nome, String email, String senha) {
+    public Usuario(String nome, String usuario, String email, String senha) {
         this.nome = nome;
+        this.usuario = usuario;
         this.email = email;
         this.senha = senha;
     }
 
-    //**Método getters */
+    public void salvarUsuario() {
 
-    public String getNome() {
-        return nome;
-    }
+        try {
 
-    public String getEmail() {
-        return email;
-    }
+            File pasta = new File("Usuarios");
 
-    public String getSenha() {
-        return senha;
-    }
 
-    //**Método setters */
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
+            FileWriter arquivo = new FileWriter(
+                    "Usuarios/" + usuario + ".txt"
+            );
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+            arquivo.write("Nome: " + nome + "\n");
+            arquivo.write("Usuário: " + usuario + "\n");
+            arquivo.write("E-mail: " + email + "\n");
+            arquivo.write("Senha: " + senha + "\n");
 
-    public void setSenha(String senha) {
-        this.senha = senha;
+            arquivo.close();
+
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar o usuário.");
+        }
     }
 }
