@@ -229,7 +229,7 @@ public class TelaEdicaoFicha extends JFrame {
                             deslocamento,
                             dinheiro,
                             atributos,
-                            null,
+                            protagonista.getRolagens(),
                             null,
                             campoPersonalidade.getText()
                     );
@@ -247,7 +247,7 @@ public class TelaEdicaoFicha extends JFrame {
                             deslocamento,
                             dinheiro,
                             atributos,
-                            null,
+                            protagonista.getRolagens(),
                             null,
                             null
                     );
