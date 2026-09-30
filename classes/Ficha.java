@@ -1,7 +1,16 @@
 package classes;
 
-import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 public abstract class Ficha {
@@ -20,6 +29,11 @@ public abstract class Ficha {
 
     private Inventario inventario;
 
+    // Nome da campanha a que a ficha pertence
+    private String nomeCampanha;
+
+    // Login do usuário que criou a ficha
+    private String donoUsuario;
 
     //metodo construtur da ficha
     public Ficha(int vidaMax, int vidaAtual, int manaMax, int manaAtual,
@@ -68,11 +82,9 @@ public abstract class Ficha {
         return classe;
     }
 
-
     public int getPontosExp() {
         return pontosExp;
     }
-
 
     public Double getDeslocamento() {
         return deslocamento;
@@ -80,6 +92,10 @@ public abstract class Ficha {
 
     public int getDinheiro() {
         return dinheiro;
+    }
+
+    public String getNomeCampanha() {
+        return nomeCampanha;
     }
 
     //**
@@ -125,39 +141,175 @@ public abstract class Ficha {
         this.atributos = atributos;
     }
 
-    public void setRolagens(List<Rolagem> rolagem){ this.rolagens = rolagem;}
+    public void setRolagens(List<Rolagem> rolagem) {
+        this.rolagens = rolagem;
+    }
+
+    public void setNomeCampanha(String nomeCampanha) {
+        this.nomeCampanha = nomeCampanha;
+    }
+
+    public String getDonoUsuario() {
+        return donoUsuario;
+    }
+
+    public void setDonoUsuario(String donoUsuario) {
+        this.donoUsuario = donoUsuario;
+    }
 
     public Atributos getAtributos() {
         return atributos;
     }
 
-    public void salvarFicha() {
+    // "Protagonista" ou "NPC" (cada subclasse define o seu)
+    public abstract String getTipo();
+
+    // Permite que as subclasses gravem campos extras no arquivo
+    protected void salvarExtras(PrintWriter w) {
+    }
+
+    // Pasta onde ficam as fichas da campanha
+    private String pastaCampanha() {
+        return (nomeCampanha == null || nomeCampanha.trim().isEmpty())
+                ? "SemCampanha"
+                : nomeCampanha;
+    }
+
+    // Arquivo desta ficha: Fichas/<campanha>/<nome>.txt
+    public File getArquivo() {
+        return new File("Fichas/" + pastaCampanha(), nome + ".txt");
+    }
+
+    // Renomeia o arquivo da ficha para o novo nome.
+    // Retorna false se já existir outra ficha com esse nome ou se der erro.
+    public boolean renomearArquivo(String novoNome) {
+
+        File antigo = getArquivo();
+        File novo = new File(antigo.getParentFile(), novoNome + ".txt");
+
+        // Se ainda não existe arquivo, não há o que renomear
+        if (!antigo.exists()) {
+            return true;
+        }
+
+        // Já existe outra ficha com o nome novo
+        // (ignora se for só troca de maiúscula/minúscula)
+        if (novo.exists() && !antigo.getName().equalsIgnoreCase(novo.getName())) {
+            return false;
+        }
 
         try {
-            FileWriter arquivo = new FileWriter("Fichas/"+ nome + ".txt");
+            Files.move(antigo.toPath(), novo.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
-            arquivo.write("Nome: " + nome + "\n");
-            arquivo.write("Classe: " + classe + "\n");
-            arquivo.write("Vida Máxima: " + vidaMax + "\n");
-            arquivo.write("Vida Atual: " + vidaAtual + "\n");
-            arquivo.write("Mana Máxima: " + manaMax + "\n");
-            arquivo.write("Mana Atual: " + manaAtual + "\n");
-            arquivo.write("Pontos de Experiência: " + pontosExp + "\n");
-            arquivo.write("Deslocamento: " + deslocamento + "\n");
-            arquivo.write("Dinheiro: " + dinheiro + "\n");
+    // Exclui o arquivo da ficha. Retorna true se foi apagado.
+    public boolean excluirFicha() {
+        return getArquivo().delete();
+    }
 
-            arquivo.write("\n--- ATRIBUTOS ---\n");
-            arquivo.write("Força: " + atributos.getForca() + "\n");
-            arquivo.write("Destreza: " + atributos.getDestreza() + "\n");
-            arquivo.write("Constituição: " + atributos.getConstituicao() + "\n");
-            arquivo.write("Inteligência: " + atributos.getInteligencia() + "\n");
-            arquivo.write("Sabedoria: " + atributos.getSabedoria() + "\n");
-            arquivo.write("Carisma: " + atributos.getCarisma() + "\n");
+    public void salvarFicha() {
 
-            arquivo.close();
+        File pasta = new File("Fichas/" + pastaCampanha());
+        pasta.mkdirs();
+
+        try (PrintWriter w = new PrintWriter(new File(pasta, nome + ".txt"), "UTF-8")) {
+
+            w.println("Tipo: " + getTipo());
+            w.println("Campanha: " + pastaCampanha());
+            w.println("Dono: " + (donoUsuario == null ? "" : donoUsuario));
+            w.println("Nome: " + nome);
+            w.println("Classe: " + classe);
+            w.println("Vida Máxima: " + vidaMax);
+            w.println("Vida Atual: " + vidaAtual);
+            w.println("Mana Máxima: " + manaMax);
+            w.println("Mana Atual: " + manaAtual);
+            w.println("Pontos de Experiência: " + pontosExp);
+            w.println("Deslocamento: " + deslocamento);
+            w.println("Dinheiro: " + dinheiro);
+
+            w.println();
+            w.println("--- ATRIBUTOS ---");
+            w.println("Força: " + atributos.getForca());
+            w.println("Destreza: " + atributos.getDestreza());
+            w.println("Constituição: " + atributos.getConstituicao());
+            w.println("Inteligência: " + atributos.getInteligencia());
+            w.println("Sabedoria: " + atributos.getSabedoria());
+            w.println("Carisma: " + atributos.getCarisma());
+
+            salvarExtras(w);
 
         } catch (IOException e) {
-            System.out.println("Erro ao salvar a ficha.");
+            System.out.println("Erro ao salvar a ficha: " + e.getMessage());
+        }
+    }
+
+    // Carrega uma ficha do arquivo (Protagonista ou NPC, conforme a linha "Tipo")
+    public static Ficha carregarFicha(File arquivo) {
+
+        try (BufferedReader leitor = new BufferedReader(
+                new InputStreamReader(new FileInputStream(arquivo), StandardCharsets.UTF_8))) {
+
+            Map<String, String> d = new HashMap<>();
+            String linha;
+
+            while ((linha = leitor.readLine()) != null) {
+                int i = linha.indexOf(": ");
+                if (i > 0) {
+                    d.put(linha.substring(0, i), linha.substring(i + 2));
+                } else if (linha.endsWith(":")) {
+                    d.put(linha.substring(0, linha.length() - 1), "");
+                }
+            }
+
+            Atributos atributos = new Atributos(
+                    Integer.parseInt(d.get("Força")),
+                    Integer.parseInt(d.get("Destreza")),
+                    Integer.parseInt(d.get("Constituição")),
+                    Integer.parseInt(d.get("Inteligência")),
+                    Integer.parseInt(d.get("Sabedoria")),
+                    Integer.parseInt(d.get("Carisma"))
+            );
+
+            int vidaMax = Integer.parseInt(d.get("Vida Máxima"));
+            int vidaAtual = Integer.parseInt(d.get("Vida Atual"));
+            int manaMax = Integer.parseInt(d.get("Mana Máxima"));
+            int manaAtual = Integer.parseInt(d.get("Mana Atual"));
+            int exp = Integer.parseInt(d.get("Pontos de Experiência"));
+            Double desloc = Double.valueOf(d.get("Deslocamento"));
+            int dinheiro = Integer.parseInt(d.get("Dinheiro"));
+
+            Ficha ficha;
+
+            if ("NPC".equals(d.get("Tipo"))) {
+
+                String personalidade = d.get("Personalidade");
+
+                ficha = new NPC(vidaMax, vidaAtual, manaMax, manaAtual,
+                        d.get("Nome"), d.get("Classe"), exp, desloc, dinheiro,
+                        atributos, null, null,
+                        personalidade == null ? "" : personalidade);
+
+            } else {
+
+                ficha = new Protagonista(vidaMax, vidaAtual, manaMax, manaAtual,
+                        d.get("Nome"), d.get("Classe"), exp, desloc, dinheiro,
+                        atributos, null, null, null);
+            }
+
+            ficha.setNomeCampanha(d.get("Campanha"));
+
+            String dono = d.get("Dono");
+            ficha.setDonoUsuario(dono == null || dono.trim().isEmpty() ? null : dono.trim());
+
+            return ficha;
+
+        } catch (IOException | NumberFormatException e) {
+            return null;
         }
     }
 

@@ -5,7 +5,6 @@ import classes.Usuario;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 
 public class TelaPrincipal extends JFrame {
 
@@ -26,6 +25,10 @@ public class TelaPrincipal extends JFrame {
                 BorderFactory.createEmptyBorder(20, 20, 20, 20)
         );
 
+        // =========================
+        // TÍTULO
+        // =========================
+
         JLabel titulo = new JLabel(
                 "Bem-vindo ao sistema!"
         );
@@ -38,9 +41,15 @@ public class TelaPrincipal extends JFrame {
                 SwingConstants.CENTER
         );
 
-        painel.add(titulo, BorderLayout.NORTH);
+        painel.add(
+                titulo,
+                BorderLayout.NORTH
+        );
 
-        // Lista de campanhas
+        // =========================
+        // LISTA DE CAMPANHAS
+        // =========================
+
         JPanel painelCampanhas = new JPanel();
 
         painelCampanhas.setLayout(
@@ -50,15 +59,24 @@ public class TelaPrincipal extends JFrame {
                 )
         );
 
-        Campanha.carregarCampanhas(painelCampanhas);
+        Campanha.carregarCampanhas(
+                painelCampanhas,
+                usuario
+        );
 
         JScrollPane scroll = new JScrollPane(
                 painelCampanhas
         );
 
-        painel.add(scroll, BorderLayout.CENTER);
+        painel.add(
+                scroll,
+                BorderLayout.CENTER
+        );
 
-        // Botões
+        // =========================
+        // BOTÕES
+        // =========================
+
         JPanel painelBotoes = new JPanel();
 
         JButton botaoCriarCampanha =
@@ -67,28 +85,41 @@ public class TelaPrincipal extends JFrame {
         JButton botaoSair =
                 new JButton("Sair");
 
-        painelBotoes.add(botaoCriarCampanha);
-        painelBotoes.add(botaoSair);
+        painelBotoes.add(
+                botaoCriarCampanha
+        );
+
+        painelBotoes.add(
+                botaoSair
+        );
 
         painel.add(
                 painelBotoes,
                 BorderLayout.SOUTH
         );
 
-        // Criar campanha
+        // =========================
+        // CRIAR CAMPANHA
+        // =========================
+
         botaoCriarCampanha.addActionListener(e -> {
 
             dispose();
 
-            new TelaCadastroCampanha(usuario).setVisible(true);
+            new TelaCadastroCampanha(
+                    usuario
+            ).setVisible(true);
 
         });
 
+        // =========================
+        // SAIR
+        // =========================
 
-        // Sair
         botaoSair.addActionListener(e -> {
 
-            new TelaLogin().setVisible(true);
+            new TelaLogin()
+                    .setVisible(true);
 
             dispose();
 
@@ -96,8 +127,6 @@ public class TelaPrincipal extends JFrame {
 
         add(painel);
     }
-
-
 
     public static void main(String[] args) {
 

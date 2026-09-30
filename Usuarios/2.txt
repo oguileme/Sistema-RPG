@@ -1,0 +1,4 @@
+Nome: 2
+Usuário: 2
+E-mail: 2
+Senha: 2

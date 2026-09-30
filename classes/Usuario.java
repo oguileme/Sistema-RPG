@@ -19,6 +19,62 @@ public class Usuario {
     public String getUsuario() {
         return this.usuario;
     }
+    public static Usuario carregarUsuario(String usuario) {
+
+        File arquivo = new File(
+                "Usuarios/" + usuario + ".txt"
+        );
+
+        if (!arquivo.exists()) {
+            return null;
+        }
+
+        try (
+                BufferedReader leitor =
+                        new BufferedReader(
+                                new FileReader(arquivo)
+                        )
+        ) {
+
+            String nome = "";
+            String nomeUsuario = "";
+            String email = "";
+            String senha = "";
+
+            String linha;
+
+            while ((linha = leitor.readLine()) != null) {
+
+                if (linha.startsWith("Nome: ")) {
+                    nome = linha.substring(6);
+                }
+
+                else if (linha.startsWith("Usuário: ")) {
+                    nomeUsuario = linha.substring(9);
+                }
+
+                else if (linha.startsWith("E-mail: ")) {
+                    email = linha.substring(8);
+                }
+
+                else if (linha.startsWith("Senha: ")) {
+                    senha = linha.substring(7);
+                }
+            }
+
+            return new Usuario(
+                    nome,
+                    nomeUsuario,
+                    email,
+                    senha
+            );
+
+        } catch (IOException e) {
+
+            return null;
+        }
+    }
+
 
     public void salvarUsuario() {
 
@@ -27,6 +83,10 @@ public class Usuario {
 
             File pasta = new File("Usuarios");
 
+            // Cria a pasta caso ainda não exista
+            if (!pasta.exists()) {
+                pasta.mkdirs();
+            }
 
             FileWriter arquivo = new FileWriter(
                     "Usuarios/" + usuario + ".txt"

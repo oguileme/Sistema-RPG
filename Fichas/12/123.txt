@@ -1,0 +1,22 @@
+Tipo: NPC
+Campanha: 12
+Dono: 1
+Nome: 123
+Classe: 123
+Vida Máxima: 12
+Vida Atual: 12
+Mana Máxima: 12
+Mana Atual: 12
+Pontos de Experiência: 12
+Deslocamento: 12.0
+Dinheiro: 12
+
+--- ATRIBUTOS ---
+Força: 12
+Destreza: 12
+Constituição: 12
+Inteligência: 12
+Sabedoria: 12
+Carisma: 12
+
+Personalidade: 12

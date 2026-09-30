@@ -1,33 +1,75 @@
 package Telas;
 
 import classes.Atributos;
+import classes.Campanha;
+import classes.Ficha;
+import classes.NPC;
 import classes.Protagonista;
+import classes.Usuario;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class TelaCadastroFicha extends JFrame {
 
-    public TelaCadastroFicha() {
+    private Campanha campanha;
+    private Usuario usuario;
+    private boolean ehMestre;
 
-        setTitle("Cadastro de Ficha");
+    // Chamado depois que a ficha é salva (atualiza a lista da campanha)
+    private Runnable aoSalvar;
+
+    public TelaCadastroFicha(
+            Campanha campanha,
+            Usuario usuario,
+            boolean ehMestre,
+            Runnable aoSalvar
+    ) {
+
+        this.campanha = campanha;
+        this.usuario = usuario;
+        this.ehMestre = ehMestre;
+        this.aoSalvar = aoSalvar;
+
+        setTitle(
+                ehMestre
+                        ? "Cadastro de NPC"
+                        : "Cadastro de Protagonista"
+        );
+
         setSize(600, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Painel principal
+        // =========================
+        // PAINEL PRINCIPAL
+        // =========================
+
         JPanel painelPrincipal = new JPanel(new BorderLayout(10, 10));
+
         painelPrincipal.setBorder(
                 BorderFactory.createEmptyBorder(15, 15, 15, 15)
         );
 
-        // Título
-        JLabel titulo = new JLabel("Cadastro de Ficha");
+        // =========================
+        // TÍTULO
+        // =========================
+
+        JLabel titulo = new JLabel(
+                ehMestre
+                        ? "Cadastro de NPC"
+                        : "Cadastro de Protagonista"
+        );
+
         titulo.setFont(new Font("Arial", Font.BOLD, 24));
+        titulo.setHorizontalAlignment(SwingConstants.CENTER);
 
         painelPrincipal.add(titulo, BorderLayout.NORTH);
 
-        // Painel dos campos
+        // =========================
+        // CAMPOS
+        // =========================
+
         JPanel painelCampos = new JPanel();
         painelCampos.setLayout(new GridLayout(0, 2, 10, 10));
 
@@ -61,7 +103,7 @@ public class TelaCadastroFicha extends JFrame {
         JTextField campoManaAtual = new JTextField();
         painelCampos.add(campoManaAtual);
 
-        // Pontos de experiência
+        // Experiência
         painelCampos.add(new JLabel("Pontos de experiência:"));
         JTextField campoExp = new JTextField();
         painelCampos.add(campoExp);
@@ -75,9 +117,16 @@ public class TelaCadastroFicha extends JFrame {
         painelCampos.add(new JLabel("Dinheiro:"));
         JTextField campoDinheiro = new JTextField();
         painelCampos.add(campoDinheiro);
-        // Separador
-        painelCampos.add(new JLabel("-----"));
-        painelCampos.add(new JLabel("ATRIBUTOS"));
+
+        // =========================
+        // ATRIBUTOS
+        // =========================
+
+        JLabel separador = new JLabel("ATRIBUTOS");
+        separador.setFont(new Font("Arial", Font.BOLD, 14));
+
+        painelCampos.add(new JLabel());
+        painelCampos.add(separador);
 
         // Força
         painelCampos.add(new JLabel("Força:"));
@@ -109,14 +158,31 @@ public class TelaCadastroFicha extends JFrame {
         JTextField campoCarisma = new JTextField();
         painelCampos.add(campoCarisma);
 
-        // Inventário
+        // Personalidade (somente NPC)
+        JTextField campoPersonalidade = new JTextField();
+
+        if (ehMestre) {
+            painelCampos.add(new JLabel("Personalidade:"));
+            painelCampos.add(campoPersonalidade);
+        }
+
+        // =========================
+        // INVENTÁRIO
+        // =========================
+
         painelCampos.add(new JLabel("Inventário:"));
         JButton botaoInventario = new JButton("Abrir Inventário");
         painelCampos.add(botaoInventario);
 
-        painelPrincipal.add(painelCampos, BorderLayout.CENTER);
+        painelPrincipal.add(
+                new JScrollPane(painelCampos),
+                BorderLayout.CENTER
+        );
 
-        // Botões inferiores
+        // =========================
+        // BOTÕES
+        // =========================
+
         JPanel painelBotoes = new JPanel();
 
         JButton botaoSalvar = new JButton("Salvar");
@@ -127,47 +193,44 @@ public class TelaCadastroFicha extends JFrame {
 
         painelPrincipal.add(painelBotoes, BorderLayout.SOUTH);
 
-        // BOTÃO SALVAR
+        // =========================
+        // SALVAR
+        // =========================
+
         botaoSalvar.addActionListener(e -> {
 
             try {
 
-                // Dados básicos
                 String nome = campoNome.getText();
                 String classe = campoClasse.getText();
 
+                if (nome.trim().isEmpty()) {
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Digite o nome da ficha.",
+                            "Erro",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                    return;
+                }
+
                 int vidaMax = Integer.parseInt(campoVidaMax.getText());
                 int vidaAtual = Integer.parseInt(campoVidaAtual.getText());
-
                 int manaMax = Integer.parseInt(campoManaMax.getText());
                 int manaAtual = Integer.parseInt(campoManaAtual.getText());
-
                 int experiencia = Integer.parseInt(campoExp.getText());
-
-                Double deslocamento =
-                        Double.parseDouble(campoDeslocamento.getText());
-
-                int dinheiro =
-                        Integer.parseInt(campoDinheiro.getText());
+                double deslocamento = Double.parseDouble(campoDeslocamento.getText());
+                int dinheiro = Integer.parseInt(campoDinheiro.getText());
 
                 // Atributos
-                int forca =
-                        Integer.parseInt(campoForca.getText());
-
-                int destreza =
-                        Integer.parseInt(campoDestreza.getText());
-
-                int constituicao =
-                        Integer.parseInt(campoConstituicao.getText());
-
-                int inteligencia =
-                        Integer.parseInt(campoInteligencia.getText());
-
-                int sabedoria =
-                        Integer.parseInt(campoSabedoria.getText());
-
-                int carisma =
-                        Integer.parseInt(campoCarisma.getText());
+                int forca = Integer.parseInt(campoForca.getText());
+                int destreza = Integer.parseInt(campoDestreza.getText());
+                int constituicao = Integer.parseInt(campoConstituicao.getText());
+                int inteligencia = Integer.parseInt(campoInteligencia.getText());
+                int sabedoria = Integer.parseInt(campoSabedoria.getText());
+                int carisma = Integer.parseInt(campoCarisma.getText());
 
                 Atributos atributos = new Atributos(
                         forca,
@@ -178,32 +241,72 @@ public class TelaCadastroFicha extends JFrame {
                         carisma
                 );
 
-                // Cria a ficha
-                Protagonista protagonista = new Protagonista(
-                        vidaMax,
-                        vidaAtual,
-                        manaMax,
-                        manaAtual,
-                        nome,
-                        classe,
-                        experiencia,
-                        deslocamento,
-                        dinheiro,
-                        atributos,
-                        null,
-                        null,
-                        null
+                // =========================
+                // NPC (mestre) ou PROTAGONISTA (jogador)
+                // =========================
+
+                Ficha ficha;
+
+                if (ehMestre) {
+
+                    ficha = new NPC(
+                            vidaMax,
+                            vidaAtual,
+                            manaMax,
+                            manaAtual,
+                            nome,
+                            classe,
+                            experiencia,
+                            deslocamento,
+                            dinheiro,
+                            atributos,
+                            null,
+                            null,
+                            campoPersonalidade.getText()
+                    );
+
+                } else {
+
+                    ficha = new Protagonista(
+                            vidaMax,
+                            vidaAtual,
+                            manaMax,
+                            manaAtual,
+                            nome,
+                            classe,
+                            experiencia,
+                            deslocamento,
+                            dinheiro,
+                            atributos,
+                            null,
+                            null,
+                            null
+                    );
+                }
+
+                // Associa a ficha à campanha e ao usuário que a criou
+                ficha.setNomeCampanha(campanha.getNome());
+
+                if (usuario != null) {
+                    ficha.setDonoUsuario(usuario.getUsuario());
+                }
+
+                ficha.salvarFicha();
+
+                // Avisa a tela da campanha para atualizar a lista
+                if (this.aoSalvar != null) {
+                    this.aoSalvar.run();
+                }
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        (ehMestre ? "NPC" : "Protagonista")
+                                + " cadastrado com sucesso!"
                 );
 
+                // Abre a tela da ficha
+                new TelaFicha(ficha).setVisible(true);
 
-
-                // Salva a ficha
-                protagonista.salvarFicha();
-
-                // Abre a TelaFicha
-                new TelaFicha(protagonista).setVisible(true);
-
-                // Fecha a tela de cadastro
                 dispose();
 
             } catch (NumberFormatException ex) {
@@ -217,14 +320,12 @@ public class TelaCadastroFicha extends JFrame {
             }
         });
 
-        // BOTÃO CANCELAR
+        // =========================
+        // CANCELAR
+        // =========================
+
         botaoCancelar.addActionListener(e -> dispose());
 
-        // Adiciona tudo à janela
         add(painelPrincipal);
-    }
-
-    public static void main(String[] args) {
-        new TelaCadastroFicha().setVisible(true);
     }
 }

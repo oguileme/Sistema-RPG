@@ -1,15 +1,16 @@
 package Telas;
 
-import classes.Protagonista;
+import classes.Ficha;
+import classes.NPC;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class TelaFicha extends JFrame {
 
-    public TelaFicha(Protagonista protagonista) {
+    public TelaFicha(Ficha protagonista) {
 
-        setTitle("Ficha do Personagem");
+        setTitle(protagonista instanceof NPC ? "Ficha de NPC" : "Ficha do Personagem");
         setSize(600, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -107,6 +108,14 @@ public class TelaFicha extends JFrame {
                 String.valueOf(protagonista.getAtributos().getCarisma())
         ));
 
+        // Personalidade (somente NPC)
+        if (protagonista instanceof NPC) {
+            painelDados.add(new JLabel("Personalidade:"));
+            painelDados.add(new JLabel(
+                    ((NPC) protagonista).getPersonalidade()
+            ));
+        }
+
         painelPrincipal.add(painelDados, BorderLayout.CENTER);
 
         // Botões inferiores
@@ -125,7 +134,47 @@ public class TelaFicha extends JFrame {
 
         botaoFechar.addActionListener(e -> dispose());
 
+        // Botão excluir
+        JButton botaoExcluir = new JButton("Excluir");
+
+        botaoExcluir.addActionListener(e -> {
+
+            int resposta = JOptionPane.showConfirmDialog(
+                    this,
+                    "Tem certeza que deseja excluir a ficha \""
+                            + protagonista.getNome() + "\"?\n"
+                            + "Essa ação não pode ser desfeita.",
+                    "Excluir ficha",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            if (resposta != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            if (protagonista.excluirFicha()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Ficha excluída com sucesso!"
+                );
+
+                dispose();
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Não foi possível excluir a ficha.",
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
+
         painelBotoes.add(botaoEditar);
+        painelBotoes.add(botaoExcluir);
         painelBotoes.add(botaoFechar);
 
         painelPrincipal.add(painelBotoes, BorderLayout.SOUTH);

@@ -2,7 +2,7 @@ package classes;
 
 import java.util.List;
 
-public class Protagonista extends Ficha{
+public class Protagonista extends Ficha {
     private Usuario player;
 
     public Protagonista(int vidaMax, int vidaAtual, int manaMax, int manaAtual,
@@ -16,5 +16,10 @@ public class Protagonista extends Ficha{
                 atributos, rolagens, inventario);
         this.player = player;
     }
-    
+
+    @Override
+    public String getTipo() {
+        return "Protagonista";
+    }
+
 }

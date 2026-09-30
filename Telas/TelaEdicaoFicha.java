@@ -1,6 +1,8 @@
 package Telas;
 
 import classes.Atributos;
+import classes.Ficha;
+import classes.NPC;
 import classes.Protagonista;
 
 import javax.swing.*;
@@ -8,7 +10,7 @@ import java.awt.*;
 
 public class TelaEdicaoFicha extends JFrame {
 
-    public TelaEdicaoFicha(Protagonista protagonista) {
+    public TelaEdicaoFicha(Ficha protagonista) {
 
         setTitle("Editar Ficha");
         setSize(600, 700);
@@ -136,7 +138,16 @@ public class TelaEdicaoFicha extends JFrame {
         );
         painelCampos.add(campoCarisma);
 
-        painelPrincipal.add(painelCampos, BorderLayout.CENTER);
+        // Personalidade (somente NPC)
+        JTextField campoPersonalidade = new JTextField();
+
+        if (protagonista instanceof NPC) {
+            campoPersonalidade.setText(((NPC) protagonista).getPersonalidade());
+            painelCampos.add(new JLabel("Personalidade:"));
+            painelCampos.add(campoPersonalidade);
+        }
+
+        painelPrincipal.add(new JScrollPane(painelCampos), BorderLayout.CENTER);
 
         // Botões
         JPanel painelBotoes = new JPanel();
@@ -156,6 +167,18 @@ public class TelaEdicaoFicha extends JFrame {
 
                 String nome = campoNome.getText();
                 String classe = campoClasse.getText();
+
+                if (nome.trim().isEmpty()) {
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Digite o nome da ficha.",
+                            "Erro",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                    return;
+                }
 
                 int vidaMax = Integer.parseInt(campoVidaMax.getText());
                 int vidaAtual = Integer.parseInt(campoVidaAtual.getText());
@@ -191,21 +214,64 @@ public class TelaEdicaoFicha extends JFrame {
                         carisma
                 );
 
-                Protagonista fichaEditada = new Protagonista(
-                        vidaMax,
-                        vidaAtual,
-                        manaMax,
-                        manaAtual,
-                        nome,
-                        classe,
-                        experiencia,
-                        deslocamento,
-                        dinheiro,
-                        atributos,
-                        null,
-                        null,
-                        null
-                );
+                Ficha fichaEditada;
+
+                if (protagonista instanceof NPC) {
+
+                    fichaEditada = new NPC(
+                            vidaMax,
+                            vidaAtual,
+                            manaMax,
+                            manaAtual,
+                            nome,
+                            classe,
+                            experiencia,
+                            deslocamento,
+                            dinheiro,
+                            atributos,
+                            null,
+                            null,
+                            campoPersonalidade.getText()
+                    );
+
+                } else {
+
+                    fichaEditada = new Protagonista(
+                            vidaMax,
+                            vidaAtual,
+                            manaMax,
+                            manaAtual,
+                            nome,
+                            classe,
+                            experiencia,
+                            deslocamento,
+                            dinheiro,
+                            atributos,
+                            null,
+                            null,
+                            null
+                    );
+                }
+
+                // Mantém a ficha na mesma campanha e com o mesmo dono
+                fichaEditada.setNomeCampanha(protagonista.getNomeCampanha());
+                fichaEditada.setDonoUsuario(protagonista.getDonoUsuario());
+
+                // Se o nome mudou, renomeia o arquivo da ficha
+                if (!nome.equals(protagonista.getNome())) {
+
+                    if (!protagonista.renomearArquivo(nome)) {
+
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Já existe uma ficha com esse nome nesta campanha.",
+                                "Erro",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+
+                        return;
+                    }
+                }
 
                 fichaEditada.salvarFicha();
 
