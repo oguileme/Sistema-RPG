@@ -7,8 +7,11 @@ import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Campanha {
 
@@ -161,23 +164,28 @@ public class Campanha {
                 nome + ".txt"
         );
 
+        // A descrição é uma linha só: quebra-la faria o
+        // "Mestre: " cair em outra linha e a campanha perder o dono
+        String descricaoEmUmaLinha =
+                (descricao == null ? "" : descricao)
+                        .replace("\r", " ")
+                        .replace("\n", " ")
+                        .trim();
+
         try (PrintWriter writer =
-                     new PrintWriter(arquivo)) {
+                     new PrintWriter(arquivo, StandardCharsets.UTF_8)) {
 
-            writer.println(nome);
-            writer.println(descricao);
+            writer.println("Nome: " + nome);
+            writer.println("Descrição: " + descricaoEmUmaLinha);
 
-            if (mestre != null) {
+            String login = (mestre != null)
+                    ? mestre.getUsuario()
+                    : loginMestre;
 
-                writer.println(
-                        "Mestre: " +
-                                mestre.getUsuario()
-                );
-
-            } else {
-
-                writer.println("Mestre: ");
-            }
+            writer.println(
+                    "Mestre: " +
+                            (login == null ? "" : login)
+            );
 
         } catch (IOException e) {
 
@@ -336,39 +344,48 @@ public class Campanha {
         try (
                 BufferedReader leitor =
                         new BufferedReader(
-                                new FileReader(arquivo)
+                                new InputStreamReader(
+                                        new FileInputStream(arquivo),
+                                        StandardCharsets.UTF_8
+                                )
                         )
         ) {
 
-            String nome =
-                    leitor.readLine();
+            Map<String, String> d = new HashMap<>();
+            String linha;
 
-            String descricao =
-                    leitor.readLine();
+            while ((linha = leitor.readLine()) != null) {
+                int i = linha.indexOf(": ");
 
-            String linhaMestre =
-                    leitor.readLine();
+                if (i > 0) {
+
+                    d.put(
+                            linha.substring(0, i),
+                            linha.substring(i + 2)
+                    );
+
+                } else if (linha.endsWith(":")) {
+
+                    d.put(
+                            linha.substring(0, linha.length() - 1),
+                            ""
+                    );
+                }
+            }
+
+            String nome = d.get("Nome");
+            String descricao = d.get("Descrição");
+
+            String loginMestre = d.get("Mestre");
+
+            if (loginMestre != null) {
+                loginMestre = loginMestre.trim();
+            }
 
             Usuario mestre = null;
-            String loginMestre = null;
 
-            if (
-                    linhaMestre != null &&
-                            linhaMestre.startsWith("Mestre: ")
-            ) {
-
-                String nomeUsuario =
-                        linhaMestre.substring(8);
-
-                if (!nomeUsuario.trim().isEmpty()) {
-
-                    loginMestre = nomeUsuario.trim();
-
-                    mestre =
-                            Usuario.carregarUsuario(
-                                    nomeUsuario
-                            );
-                }
+            if (loginMestre != null && !loginMestre.isEmpty()) {
+                mestre = Usuario.carregarUsuario(loginMestre);
             }
 
             Campanha campanha = new Campanha(
