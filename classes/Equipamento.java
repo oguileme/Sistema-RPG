@@ -1,4 +1,8 @@
 package classes;
+
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class Equipamento {
     private String nome;
     private int quantidade;
@@ -43,5 +47,19 @@ public class Equipamento {
 
     public void setCarga(int carga) {
         this.carga = carga;
+    }
+
+    //salvar arquivo .txt
+    public void salvarEquipamento() {
+        try {
+            FileWriter arquivo = new FileWriter("Equipamentos/" + nome + ".txt");
+            arquivo.write("Nome: " + nome + "\n");
+            arquivo.write("Quantidade: " + quantidade + "\n");
+            arquivo.write("Carga: " + carga + "\n");
+            arquivo.write("Descrição: " + descricao + "\n");
+            arquivo.close();
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar o equipamento.");
+        }
     }
 }
