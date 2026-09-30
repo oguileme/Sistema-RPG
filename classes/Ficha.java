@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.nio.file.Files;
@@ -51,7 +52,7 @@ public abstract class Ficha {
         this.deslocamento = deslocamento;
         this.dinheiro = dinheiro;
         this.atributos = atributos;
-        this.rolagens = rolagens;
+        this.rolagens = rolagens == null ? new ArrayList<>() : rolagens;
         this.inventario = inventario;
     }
 
@@ -157,6 +158,15 @@ public abstract class Ficha {
         this.donoUsuario = donoUsuario;
     }
 
+    public List<Rolagem> getRolagens() {
+        return rolagens;
+    }
+
+    //guarda uma rolagem no historico da ficha
+    public void addRolagem(Rolagem rolagem) {
+        this.rolagens.add(rolagem);
+    }
+
     public Atributos getAtributos() {
         return atributos;
     }
@@ -243,8 +253,37 @@ public abstract class Ficha {
 
             salvarExtras(w);
 
+            salvarRolagens(w);
+
         } catch (IOException e) {
             System.out.println("Erro ao salvar a ficha: " + e.getMessage());
+        }
+    }
+
+    // Grava o histórico de rolagens da ficha
+    private void salvarRolagens(PrintWriter w) {
+
+        w.println();
+        w.println("--- ROLAGENS ---");
+
+        for (Rolagem rolagem : rolagens) {
+
+            w.println(
+                    "Rolagem: " + rolagem.getDataFormatada()
+                            + " | Descrição: " + rolagem.getDescricao()
+                            + " | Bônus: " + rolagem.getBonus()
+                            + " | Total: " + rolagem.getResultadoFinal()
+            );
+
+            for (ResultadoRolagem resultado : rolagem.getResultados()) {
+
+                w.println(
+                        "Termo: " + resultado.getQuantidade()
+                                + resultado.getDado()
+                                + " | Valores: " + resultado.getValores()
+                                + " | Subtotal: " + resultado.getSubtotal()
+                );
+            }
         }
     }
 
