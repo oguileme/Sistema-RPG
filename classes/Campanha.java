@@ -4,12 +4,12 @@ import java.util.List;
 public class Campanha {
     private String nome;
     private String descricao;
-    private Mestre mestre;
-    private List<Player> jogadores;
+    private Usuario mestre;
+    private List<Usuario> jogadores;
     private List<Ficha> fichas;
 
     //**Método construtor de Campanha */
-    public Campanha(String nome, String descricao, Mestre mestre) {
+    public Campanha(String nome, String descricao, Usuario mestre) {
         this.nome = nome;
         this.descricao = descricao;
         this.mestre = mestre;
@@ -24,7 +24,7 @@ public class Campanha {
         return descricao;
     }
 
-    public Mestre getMestre() {
+    public Usuario getMestre() {
         return mestre;
     }
 
@@ -39,7 +39,7 @@ public class Campanha {
 
     //sem setter de mestre, pois o mestre é definido no momento da criação da campanha e não deve ser alterado posteriormente.
 
-    public void addPlayer(Player player) {
+    public void addPlayer(Usuario player) {
         // lógica para adicionar um jogador à campanha
         this.jogadores.add(player);
     }

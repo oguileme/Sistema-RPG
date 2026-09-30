@@ -1,5 +1,7 @@
 package classes;
 
+import java.util.List;
+
 public abstract class Ficha {
     private int vidaMax;
     private int vidaAtual;
@@ -7,50 +9,34 @@ public abstract class Ficha {
     private int manaAtual;
     private String nome;
     private String classe;
-    private String raca;
-    private String origem;
-    private String divindade;
     private int pontosExp;
-    private int idade;
-    private Double tamanho;
     private Double deslocamento;
     private int dinheiro;
 
-    //Atributos
-    private int forca;
-    private int destreza;
-    private int constituicao;
-    private int inteligencia;
-    private int sabedoria;
-    private int carisma;
+    private Atributos atributos;
+    private List<Rolagem> rolagens;
 
-    private Rolagem histRolagem;
+    private Inventario inventario;
 
 
     //metodo construtur da ficha
-    public Ficha(int vidaMax, int vidaAtual, int manaMax, int manaAtual, String nome, String classe, String raca, String origem, 
-    String divindade, int pontosExp, int idade, Double tamanho, Double deslocamento, int dinheiro,
-    int forca, int destreza, int constituicao, int inteligencia, int sabedoria, int carisma) {
+    public Ficha(int vidaMax, int vidaAtual, int manaMax, int manaAtual,
+                 String nome, String classe, int pontosExp,
+                 Double deslocamento, int dinheiro,
+                 Atributos atributos, List<Rolagem> rolagens,
+                 Inventario inventario) {
         this.vidaMax = vidaMax;
         this.vidaAtual = vidaAtual;
         this.manaMax = manaMax;
         this.manaAtual = manaAtual;
         this.nome = nome;
         this.classe = classe;
-        this.raca = raca;
-        this.origem = origem;
-        this.divindade = divindade;
         this.pontosExp = pontosExp;
-        this.idade = idade;
-        this.tamanho = tamanho;
         this.deslocamento = deslocamento;
         this.dinheiro = dinheiro;
-        this.forca = forca;
-        this.destreza = destreza;
-        this.constituicao = constituicao;
-        this.inteligencia = inteligencia;
-        this.sabedoria = sabedoria;
-        this.carisma = carisma;
+        this.atributos = atributos;
+        this.rolagens = rolagens;
+        this.inventario = inventario;
     }
 
     //**
@@ -80,29 +66,11 @@ public abstract class Ficha {
         return classe;
     }
 
-    public String getRaca() {
-        return raca;
-    }
-
-    public String getOrigem() {
-        return origem;
-    }
-
-    public String getDivindade() {
-        return divindade;
-    }
 
     public int getPontosExp() {
         return pontosExp;
     }
 
-    public int getIdade() {
-        return idade;
-    }
-
-    public Double getTamanho() {
-        return tamanho;
-    }
 
     public Double getDeslocamento() {
         return deslocamento;
@@ -110,30 +78,6 @@ public abstract class Ficha {
 
     public int getDinheiro() {
         return dinheiro;
-    }
-
-    public int getForca() {
-        return forca;
-    }
-
-    public int getDestreza() {
-        return destreza;
-    }
-
-    public int getConstituicao() {
-        return constituicao;
-    }
-
-    public int getInteligencia() {
-        return inteligencia;
-    }
-
-    public int getSabedoria() {
-        return sabedoria;
-    }
-
-    public int getCarisma() {
-        return carisma;
     }
 
     //**
@@ -163,28 +107,8 @@ public abstract class Ficha {
         this.classe = classe;
     }
 
-    public void setRaca(String raca) {
-        this.raca = raca;
-    }
-
-    public void setOrigem(String origem) {
-        this.origem = origem;
-    }
-
-    public void setDivindade(String divindade) {
-        this.divindade = divindade;
-    }
-
     public void setPontosExp(int pontosExp) {
         this.pontosExp = pontosExp;
-    }
-
-    public void setIdade(int idade) {
-        this.idade = idade;
-    }
-
-    public void setTamanho(Double tamanho) {
-        this.tamanho = tamanho;
     }
 
     public void setDeslocamento(Double deslocamento) {
@@ -195,27 +119,12 @@ public abstract class Ficha {
         this.dinheiro = dinheiro;
     }
 
-    public void setForca(int forca) {
-        this.forca = forca;
+    public void setAtributos(Atributos atributos) {
+        this.atributos = atributos;
     }
 
-    public void setDestreza(int destreza) {
-        this.destreza = destreza;
-    }
+    public void setRolagens(List<Rolagem> rolagem){ this.rolagens = rolagem;}
 
-    public void setConstituicao(int constituicao) {
-        this.constituicao = constituicao;
-    }
 
-    public void setInteligencia(int inteligencia) {
-        this.inteligencia = inteligencia;
-    }
 
-    public void setSabedoria(int sabedoria) {
-        this.sabedoria = sabedoria;
-    }
-
-    public void setCarisma(int carisma) {
-        this.carisma = carisma;
-    }
 }
