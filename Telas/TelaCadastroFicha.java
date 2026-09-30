@@ -167,13 +167,9 @@ public class TelaCadastroFicha extends JFrame {
             painelCampos.add(campoPersonalidade);
         }
 
-        // =========================
-        // INVENTÁRIO
-        // =========================
-
-        painelCampos.add(new JLabel("Inventário:"));
-        JButton botaoInventario = new JButton("Abrir Inventário");
-        painelCampos.add(botaoInventario);
+        // Não há botão de inventário aqui: a ficha ainda não existe
+        // enquanto este formulário está aberto. Quem cria a ficha pode
+        // abrir o inventário logo depois, na tela da ficha.
 
         painelPrincipal.add(
                 new JScrollPane(painelCampos),

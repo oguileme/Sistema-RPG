@@ -88,7 +88,10 @@ public class Inventario {
             return somarQuantidade(jaExiste, equipamento.getQuantidade());
         }
 
-        if (!cabe(equipamento.getCargaTotal())) {
+        //o teste é com a carga que vai ficar depois de pegar o item, e não
+        //com a carga do item sozinha: senão um item de 15 numa mochila
+        //que já tem 10 entraria numa mochila de 20
+        if (!cabe(getCargaTotal() + equipamento.getCargaTotal())) {
             return false;
         }
 
