@@ -17,10 +17,19 @@ public class Rolagem {
     private int resultadoFinal;
 
     public Rolagem(String descricao, int bonus) {
+        this(descricao, bonus, LocalDateTime.now());
+    }
+
+    public Rolagem(String descricao, int bonus, LocalDateTime data) {
         this.descricao = descricao;
         this.bonus = bonus;
-        this.data = LocalDateTime.now();
+        this.data = data;
         this.resultados = new ArrayList<>();
+    }
+
+    //usado ao ler a rolagem de volta do arquivo
+    static DateTimeFormatter formatoData() {
+        return FORMATO_DATA;
     }
 
     // Getters e Setters
@@ -61,6 +70,11 @@ public class Rolagem {
         return resultadoFinal;
     }
 
+    //adiciona um termo ja calculado, usado ao ler do arquivo
+    public void addResultado(ResultadoRolagem resultado) {
+        resultados.add(resultado);
+    }
+
     //adiciona um termo, por exemplo addTermo(2, 8) para 2d8
     public void addTermo(int quantidade, int faces) {
         resultados.add(new ResultadoRolagem(quantidade, new Dado(faces)));
@@ -89,10 +103,21 @@ public class Rolagem {
     //para testar com uma semente fixa
     public void rolar(Random aleatorio) {
 
+        for (ResultadoRolagem resultado : resultados) {
+            resultado.rolar(aleatorio);
+        }
+
+        recalcularTotal();
+    }
+
+    //total = bonus + soma dos subtotais. Usado ao sortear e
+    //tambem ao ler a rolagem de volta do arquivo, para nao
+    //confiar no total gravado.
+    void recalcularTotal() {
+
         resultadoFinal = bonus;
 
         for (ResultadoRolagem resultado : resultados) {
-            resultado.rolar(aleatorio);
             resultadoFinal += resultado.getSubtotal();
         }
     }

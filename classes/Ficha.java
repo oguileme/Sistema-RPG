@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.time.DateTimeException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public abstract class Ficha {
@@ -296,14 +298,55 @@ public abstract class Ficha {
             Map<String, String> d = new HashMap<>();
             String linha;
 
+            //linhas de rolagem em ordem, porque "Rolagem:" e "Termo:"
+            //se repetem e um mapa achataria todas menos a ultima
+            List<String> linhasDeRolagem = new ArrayList<>();
+
+            boolean dentroDasRolagens = false;
+
             while ((linha = leitor.readLine()) != null) {
+
+                String linhaSemEspaco = linha.trim();
+
+                if (linhaSemEspaco.startsWith("--- ROLAGENS")) {
+                    dentroDasRolagens = true;
+                    continue;
+                }
+
+                //qualquer outra secao encerra o historico
+                if (dentroDasRolagens && linhaSemEspaco.startsWith("---")) {
+                    dentroDasRolagens = false;
+                    continue;
+                }
+
+                if (dentroDasRolagens) {
+
+                    if (!linhaSemEspaco.isEmpty()) {
+                        linhasDeRolagem.add(linhaSemEspaco);
+                    }
+
+                    continue;
+                }
+
                 int i = linha.indexOf(": ");
+
                 if (i > 0) {
-                    d.put(linha.substring(0, i), linha.substring(i + 2));
+
+                    d.put(
+                            linha.substring(0, i),
+                            linha.substring(i + 2)
+                    );
+
                 } else if (linha.endsWith(":")) {
-                    d.put(linha.substring(0, linha.length() - 1), "");
+
+                    d.put(
+                            linha.substring(0, linha.length() - 1),
+                            ""
+                    );
                 }
             }
+
+            List<Rolagem> rolagens = lerRolagens(linhasDeRolagem);
 
             Atributos atributos = new Atributos(
                     Integer.parseInt(d.get("Força")),
@@ -330,14 +373,14 @@ public abstract class Ficha {
 
                 ficha = new NPC(vidaMax, vidaAtual, manaMax, manaAtual,
                         d.get("Nome"), d.get("Classe"), exp, desloc, dinheiro,
-                        atributos, null, null,
+                        atributos, rolagens, null,
                         personalidade == null ? "" : personalidade);
 
             } else {
 
                 ficha = new Protagonista(vidaMax, vidaAtual, manaMax, manaAtual,
                         d.get("Nome"), d.get("Classe"), exp, desloc, dinheiro,
-                        atributos, null, null, null);
+                        atributos, rolagens, null, null);
             }
 
             ficha.setNomeCampanha(d.get("Campanha"));
@@ -350,6 +393,135 @@ public abstract class Ficha {
         } catch (IOException | NumberFormatException e) {
             return null;
         }
+    }
+
+    // Reconstrói as rolagens a partir das linhas da seção
+    // "--- ROLAGENS ---". Uma linha de "Rolagem:" começa uma rolagem
+    // e as linhas de "Termo:" seguintes entram nela.
+    private static List<Rolagem> lerRolagens(List<String> linhas) {
+
+        List<Rolagem> rolagens = new ArrayList<>();
+        Rolagem atual = null;
+
+        for (String linha : linhas) {
+
+            if (linha.startsWith("Rolagem:")) {
+
+                atual = lerRolagem(linha);
+
+                if (atual != null) {
+                    rolagens.add(atual);
+                }
+
+            } else if (linha.startsWith("Termo:") && atual != null) {
+
+                ResultadoRolagem termo = lerTermo(linha);
+
+                if (termo != null) {
+                    atual.addResultado(termo);
+                }
+            }
+        }
+
+        //o total é recalculado em vez de confiar no que foi gravado
+        for (Rolagem rolagem : rolagens) {
+            rolagem.recalcularTotal();
+        }
+
+        return rolagens;
+    }
+
+    // "Rolagem: 2026-09-30 12:00:00 | Descrição: x | Bônus: 5 | Total: 40"
+    private static Rolagem lerRolagem(String linha) {
+
+        Map<String, String> campos = new HashMap<>();
+
+        // os campos do meio vêm separados por " | "
+        for (String parte : linha.split("\\|")) {
+
+            int i = parte.indexOf(":");
+
+            if (i > 0) {
+                campos.put(
+                        parte.substring(0, i).trim(),
+                        parte.substring(i + 1).trim()
+                );
+            }
+        }
+
+        String descricao = campos.getOrDefault("Descrição", "");
+
+        int bonus = 0;
+
+        try {
+            bonus = Integer.parseInt(campos.getOrDefault("Bônus", "0"));
+        } catch (NumberFormatException e) {
+            bonus = 0;
+        }
+
+        LocalDateTime data = LocalDateTime.now();
+
+        try {
+            // o primeiro campo depois de "Rolagem:" é sempre a data
+            String dataTexto = linha
+                    .substring("Rolagem:".length())
+                    .split("\\|")[0]
+                    .trim();
+
+            if (!dataTexto.isEmpty()) {
+                data = LocalDateTime.parse(dataTexto, Rolagem.formatoData());
+            }
+        } catch (DateTimeException e) {
+            // data ilegível: mantém a data atual em vez de perder a rolagem
+        }
+
+        return new Rolagem(descricao, bonus, data);
+    }
+
+    // "Termo: 2d8 | Valores: 6, 1 | Subtotal: 7"
+    private static ResultadoRolagem lerTermo(String linha) {
+
+        Map<String, String> campos = new HashMap<>();
+
+        for (String parte : linha.split("\\|")) {
+
+            int i = parte.indexOf(":");
+
+            if (i > 0) {
+                campos.put(
+                        parte.substring(0, i).trim(),
+                        parte.substring(i + 1).trim()
+                );
+            }
+        }
+
+        String formula = campos.getOrDefault("Termo", "").trim();
+        String valoresTexto = campos.getOrDefault("Valores", "");
+
+        ResultadoRolagem termo = ResultadoRolagem.de(formula);
+
+        List<Integer> valores = new ArrayList<>();
+
+        for (String valor : valoresTexto.split(",")) {
+
+            String limpo = valor.trim();
+
+            if (limpo.isEmpty()) {
+                continue;
+            }
+
+            try {
+                valores.add(Integer.valueOf(limpo));
+            } catch (NumberFormatException e) {
+                // valor ilegível: mantém os que deu para ler
+            }
+        }
+
+        if (!valores.isEmpty()) {
+            termo.registrar(valores);
+        }
+
+        return termo;
     }
 
 }
