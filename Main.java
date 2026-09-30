@@ -1,5 +1,11 @@
-public class Main{
-    public static void main(String[] args) {
+import Telas.TelaLogin;
 
+import javax.swing.SwingUtilities;
+
+public class Main {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new TelaLogin().setVisible(true);
+        });
     }
 }
