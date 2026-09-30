@@ -1,5 +1,8 @@
 package classes;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class Arma extends Equipamento{
     private String tipoDano;
     private Double alcance;
@@ -36,5 +39,22 @@ public class Arma extends Equipamento{
 
     public void setPontosParaCritico(int pontosParaCritico) {
         this.pontosParaCritico = pontosParaCritico;
+    }
+
+    //salvar arma em arquivo .txt
+    public void salvarArma() {
+        try {
+            FileWriter arquivo = new FileWriter("Armas/" + getNome() + ".txt");
+            arquivo.write("Nome: " + getNome() + "\n");
+            arquivo.write("Quantidade: " + getQuantidade() + "\n");
+            arquivo.write("Carga: " + getCarga() + "\n");
+            arquivo.write("Descrição: " + getDescricao() + "\n");
+            arquivo.write("Tipo de Dano: " + tipoDano + "\n");
+            arquivo.write("Alcance: " + alcance + "\n");
+            arquivo.write("Pontos para Crítico: " + pontosParaCritico + "\n");
+            arquivo.close();
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar arma: " + e.getMessage());
+        }
     }
 }
