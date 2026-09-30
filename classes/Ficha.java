@@ -55,7 +55,9 @@ public abstract class Ficha {
         this.dinheiro = dinheiro;
         this.atributos = atributos;
         this.rolagens = rolagens == null ? new ArrayList<>() : rolagens;
-        this.inventario = inventario;
+        //um inventário null quebraria a tela de inventário, então entra
+        //um vazio no lugar
+        this.inventario = inventario == null ? new Inventario() : inventario;
     }
 
     //**
@@ -146,6 +148,14 @@ public abstract class Ficha {
 
     public void setRolagens(List<Rolagem> rolagem) {
         this.rolagens = rolagem;
+    }
+
+    public Inventario getInventario() {
+        return inventario;
+    }
+
+    public void setInventario(Inventario inventario) {
+        this.inventario = inventario == null ? new Inventario() : inventario;
     }
 
     public void setNomeCampanha(String nomeCampanha) {
@@ -262,6 +272,8 @@ public abstract class Ficha {
 
             salvarExtras(w);
 
+            inventario.salvar(w);
+
             salvarRolagens(w);
 
         } catch (IOException | RuntimeException e) {
@@ -313,7 +325,11 @@ public abstract class Ficha {
             //se repetem e um mapa achataria todas menos a ultima
             List<String> linhasDeRolagem = new ArrayList<>();
 
+            //mesma coisa no inventário: "Equipamento:" se repete
+            List<String> linhasDeInventario = new ArrayList<>();
+
             boolean dentroDasRolagens = false;
+            boolean dentroDoInventario = false;
 
             while ((linha = leitor.readLine()) != null) {
 
@@ -321,6 +337,13 @@ public abstract class Ficha {
 
                 if (linhaSemEspaco.startsWith("--- ROLAGENS")) {
                     dentroDasRolagens = true;
+                    dentroDoInventario = false;
+                    continue;
+                }
+
+                if (linhaSemEspaco.startsWith("--- INVENT")) {
+                    dentroDoInventario = true;
+                    dentroDasRolagens = false;
                     continue;
                 }
 
@@ -330,10 +353,24 @@ public abstract class Ficha {
                     continue;
                 }
 
+                if (dentroDoInventario && linhaSemEspaco.startsWith("---")) {
+                    dentroDoInventario = false;
+                    continue;
+                }
+
                 if (dentroDasRolagens) {
 
                     if (!linhaSemEspaco.isEmpty()) {
                         linhasDeRolagem.add(linhaSemEspaco);
+                    }
+
+                    continue;
+                }
+
+                if (dentroDoInventario) {
+
+                    if (!linhaSemEspaco.isEmpty()) {
+                        linhasDeInventario.add(linhaSemEspaco);
                     }
 
                     continue;
@@ -358,6 +395,8 @@ public abstract class Ficha {
             }
 
             List<Rolagem> rolagens = lerRolagens(linhasDeRolagem);
+
+            Inventario inventario = Inventario.ler(linhasDeInventario);
 
             Atributos atributos = new Atributos(
                     Integer.parseInt(d.get("Força")),
@@ -384,14 +423,14 @@ public abstract class Ficha {
 
                 ficha = new NPC(vidaMax, vidaAtual, manaMax, manaAtual,
                         d.get("Nome"), d.get("Classe"), exp, desloc, dinheiro,
-                        atributos, rolagens, null,
+                        atributos, rolagens, inventario,
                         personalidade == null ? "" : personalidade);
 
             } else {
 
                 ficha = new Protagonista(vidaMax, vidaAtual, manaMax, manaAtual,
                         d.get("Nome"), d.get("Classe"), exp, desloc, dinheiro,
-                        atributos, rolagens, null, null);
+                        atributos, rolagens, inventario, null);
             }
 
             ficha.setNomeCampanha(d.get("Campanha"));

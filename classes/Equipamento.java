@@ -337,6 +337,32 @@ public class Equipamento {
     // =========================
 
     /**
+     * Carrega um equipamento pelo tipo e pelo nome.
+     *
+     * Os carregadores das subclasses são estáticos, então não dá para
+     * escolher o tipo pelo objeto: é este método que faz a escolha.
+     *
+     * @return null se o tipo não for conhecido, ou se não existir
+     */
+    public static Equipamento carregarPorTipo(String tipo, String nome) {
+
+        if (tipo == null || nome == null) {
+            return null;
+        }
+
+        switch (tipo.trim()) {
+            case "Arma":
+                return Arma.carregarArma(nome);
+            case "Armadura":
+                return Armadura.carregarArmadura(nome);
+            case "Equipamento":
+                return carregarEquipamento(nome);
+            default:
+                return null;
+        }
+    }
+
+    /**
      * Lista todos os equipamentos salvos, de todas as pastas.
      */
     public static List<Equipamento> listarTodos() {
