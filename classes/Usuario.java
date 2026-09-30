@@ -15,8 +15,13 @@ public class Usuario {
         this.email = email;
         this.senha = senha;
     }
+    public String getNome(){return this.nome;}
+    public String getUsuario() {
+        return this.usuario;
+    }
 
     public void salvarUsuario() {
+
 
         try {
 
@@ -39,14 +44,14 @@ public class Usuario {
         }
     }
 
-    public static boolean autenticar(String usuario, String senha) {
+    public static Usuario autenticar(String usuario, String senha) {
 
         File arquivo = new File(
                 "Usuarios/" + usuario + ".txt"
         );
 
         if (!arquivo.exists()) {
-            return false;
+            return null;
         }
 
         try {
@@ -56,22 +61,50 @@ public class Usuario {
             );
 
             String linha;
+
+            String nomeArquivo = null;
+            String usuarioArquivo = null;
+            String emailArquivo = null;
             String senhaArquivo = null;
 
             while ((linha = leitor.readLine()) != null) {
 
-                if (linha.startsWith("Senha: ")) {
+                if (linha.startsWith("Nome: ")) {
+                    nomeArquivo = linha.substring(6);
+                }
+
+                else if (linha.startsWith("Usuário: ")) {
+                    usuarioArquivo = linha.substring(9);
+                }
+
+                else if (linha.startsWith("E-mail: ")) {
+                    emailArquivo = linha.substring(8);
+                }
+
+                else if (linha.startsWith("Senha: ")) {
                     senhaArquivo = linha.substring(7);
                 }
             }
 
             leitor.close();
 
-            return senha.equals(senhaArquivo);
+            if (senha.equals(senhaArquivo)) {
+
+                return new Usuario(
+                        nomeArquivo,
+                        usuarioArquivo,
+                        emailArquivo,
+                        senhaArquivo
+                );
+            }
+
+            return null;
 
         } catch (IOException e) {
 
-            return false;
+            return null;
         }
     }
+
+
 }

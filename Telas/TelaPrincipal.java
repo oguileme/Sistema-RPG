@@ -1,60 +1,108 @@
 package Telas;
 
+import classes.Campanha;
+import classes.Usuario;
+
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 public class TelaPrincipal extends JFrame {
 
-    public TelaPrincipal() {
+    private Usuario usuario;
+
+    public TelaPrincipal(Usuario usuario) {
+
+        this.usuario = usuario;
 
         setTitle("Tela Principal");
-        setSize(500, 400);
+        setSize(600, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         JPanel painel = new JPanel(new BorderLayout(10, 10));
 
         painel.setBorder(
-                BorderFactory.createEmptyBorder(30, 30, 30, 30)
+                BorderFactory.createEmptyBorder(20, 20, 20, 20)
         );
 
-        // Título
-        JLabel titulo = new JLabel("Bem-vindo ao sistema!");
-        titulo.setFont(new Font("Arial", Font.BOLD, 24));
-        titulo.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel titulo = new JLabel(
+                "Bem-vindo ao sistema!"
+        );
+
+        titulo.setFont(
+                new Font("Arial", Font.BOLD, 24)
+        );
+
+        titulo.setHorizontalAlignment(
+                SwingConstants.CENTER
+        );
 
         painel.add(titulo, BorderLayout.NORTH);
 
-        // Botões
-        JPanel painelBotoes = new JPanel(
-                new GridLayout(3, 1, 10, 10)
+        // Lista de campanhas
+        JPanel painelCampanhas = new JPanel();
+
+        painelCampanhas.setLayout(
+                new BoxLayout(
+                        painelCampanhas,
+                        BoxLayout.Y_AXIS
+                )
         );
 
-        JButton botaoFicha = new JButton("Minhas Fichas");
-        JButton botaoCadastrarFicha = new JButton("Cadastrar Ficha");
-        JButton botaoSair = new JButton("Sair");
+        Campanha.carregarCampanhas(painelCampanhas);
 
-        painelBotoes.add(botaoFicha);
-        painelBotoes.add(botaoCadastrarFicha);
+        JScrollPane scroll = new JScrollPane(
+                painelCampanhas
+        );
+
+        painel.add(scroll, BorderLayout.CENTER);
+
+        // Botões
+        JPanel painelBotoes = new JPanel();
+
+        JButton botaoCriarCampanha =
+                new JButton("Criar Campanha");
+
+        JButton botaoSair =
+                new JButton("Sair");
+
+        painelBotoes.add(botaoCriarCampanha);
         painelBotoes.add(botaoSair);
 
-        painel.add(painelBotoes, BorderLayout.CENTER);
+        painel.add(
+                painelBotoes,
+                BorderLayout.SOUTH
+        );
 
-        // Botão cadastrar ficha
-        botaoCadastrarFicha.addActionListener(e -> {
-            new TelaCadastroFicha().setVisible(true);
+        // Criar campanha
+        botaoCriarCampanha.addActionListener(e -> {
+
+            dispose();
+
+            new TelaCadastroCampanha(usuario).setVisible(true);
+
         });
 
-        // Botão sair
+
+        // Sair
         botaoSair.addActionListener(e -> {
+
             new TelaLogin().setVisible(true);
+
             dispose();
+
         });
 
         add(painel);
     }
 
+
+
     public static void main(String[] args) {
-        new TelaPrincipal().setVisible(true);
+
+        new TelaPrincipal(null)
+                .setVisible(true);
+
     }
 }

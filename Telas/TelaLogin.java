@@ -10,7 +10,7 @@ public class TelaLogin extends JFrame {
     public TelaLogin() {
 
         setTitle("Login");
-        setSize(400, 200);
+        setSize(400, 250);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -51,18 +51,21 @@ public class TelaLogin extends JFrame {
         // Botão Entrar
         entrarButton.addActionListener(e -> {
 
-            String usuario = usuarioField.getText();
+            String nomeUsuario = usuarioField.getText();
             String senha = new String(senhaField.getPassword());
 
-            if (Usuario.autenticar(usuario, senha)) {
+            Usuario usuarioLogado =
+                    Usuario.autenticar(nomeUsuario, senha);
+
+            if (usuarioLogado != null) {
 
                 JOptionPane.showMessageDialog(
                         this,
                         "Login realizado com sucesso!"
                 );
 
-                // Abre a TelaPrincipal
-                new TelaPrincipal().setVisible(true);
+                // Passa o usuário logado para a TelaPrincipal
+                new TelaPrincipal(usuarioLogado).setVisible(true);
 
                 // Fecha a tela de login
                 dispose();
