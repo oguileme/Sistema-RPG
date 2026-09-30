@@ -1,7 +1,11 @@
 package classes;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Armadura extends Equipamento{
     private int bonusCA;
@@ -40,10 +44,24 @@ public class Armadura extends Equipamento{
         this.penalidade = penalidade;
     }
 
+    @Override
+    public String getTipo() {
+        return "Armadura";
+    }
+
+    @Override
+    protected String getPasta() {
+        return "Armaduras";
+    }
+
     //metodo para salvar armadura em arquivo.txt
     public void salvarArmadura() {
+        garantirPasta();
+
         try {
-            FileWriter arquivo = new FileWriter("Armaduras/" + getNome() + ".txt");
+            FileWriter arquivo = new FileWriter(
+                    getPasta() + "/" + getNome() + ".txt"
+            );
             arquivo.write("Nome: " + getNome() + "\n");
             arquivo.write("Quantidade: " + getQuantidade() + "\n");
             arquivo.write("Carga: " + getCarga() + "\n");
@@ -57,5 +75,51 @@ public class Armadura extends Equipamento{
         }
     }
 
-    
+    //carrega uma armadura salva em .txt, devolve null se não existir
+    public static Armadura carregar(String nome) {
+
+        File arquivo = new File("Armaduras/" + nome + ".txt");
+
+        if (!arquivo.exists()) {
+            return null;
+        }
+
+        Map<String, String> campos = lerCampos(arquivo.getPath());
+
+        return new Armadura(
+                lerTexto(campos, "Nome"),
+                lerInteiro(campos, "Quantidade"),
+                lerInteiro(campos, "Carga"),
+                lerTexto(campos, "Descrição"),
+                lerInteiro(campos, "Bônus CA"),
+                lerInteiro(campos, "Máximo Destreza"),
+                lerInteiro(campos, "Penalidade")
+        );
+    }
+
+    //lista todas as armaduras salvas na pasta
+    public static List<Equipamento> listar() {
+
+        List<Equipamento> armaduras = new ArrayList<>();
+
+        File[] arquivos = new File("Armaduras").listFiles();
+
+        if (arquivos == null) {
+            return armaduras;
+        }
+
+        for (File arquivo : arquivos) {
+
+            if (arquivo.getName().endsWith(".txt")) {
+
+                Armadura armadura = Armadura.carregar(nomeDoArquivo(arquivo));
+
+                if (armadura != null) {
+                    armaduras.add(armadura);
+                }
+            }
+        }
+
+        return armaduras;
+    }
 }
