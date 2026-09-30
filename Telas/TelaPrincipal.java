@@ -76,11 +76,18 @@ public class TelaPrincipal extends JFrame {
         JButton botaoCriarCampanha =
                 new JButton("Criar Campanha");
 
+        JButton botaoEquipamentos =
+                new JButton("Equipamentos");
+
         JButton botaoSair =
                 new JButton("Sair");
 
         painelBotoes.add(
                 botaoCriarCampanha
+        );
+
+        painelBotoes.add(
+                botaoEquipamentos
         );
 
         painelBotoes.add(
@@ -103,6 +110,12 @@ public class TelaPrincipal extends JFrame {
             ).setVisible(true);
 
         });
+
+        // EQUIPAMENTOS
+
+        botaoEquipamentos.addActionListener(e ->
+                new TelaEquipamentos().setVisible(true)
+        );
 
         // SAIR
 

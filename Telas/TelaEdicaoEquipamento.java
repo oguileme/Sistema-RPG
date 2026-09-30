@@ -3,6 +3,7 @@ package Telas;
 import classes.Arma;
 import classes.Armadura;
 import classes.Equipamento;
+import classes.ValidadorEquipamento;
 import classes.ValidadorNome;
 
 import javax.swing.*;
@@ -225,10 +226,72 @@ public class TelaEdicaoEquipamento extends JFrame {
 
             int carga = Integer.parseInt(campoCarga.getText().trim());
 
+            String erro = ValidadorEquipamento.erroQuantidade(quantidade);
+
+            if (erro == null) {
+                erro = ValidadorEquipamento.erroCarga(carga);
+            }
+
+            if (erro != null) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        erro,
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+            // Campos do tipo, validados antes de salvar qualquer coisa
+            if (equipamento instanceof Arma) {
+
+                erro = ValidadorEquipamento.erroAlcance(
+                        Double.valueOf(campoAlcance.getText().trim())
+                );
+
+            } else if (equipamento instanceof Armadura) {
+
+                erro = ValidadorEquipamento.erroMaxDestreza(
+                        Integer.parseInt(campoMaxDestreza.getText().trim())
+                );
+            }
+
+            if (erro != null) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        erro,
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
             String descricao = campoDescricao.getText().trim();
 
+            // Nome novo é barrado antes de mexer nos outros campos,
+            // para não salvar o resto e só depois falhar no arquivo
+            if (!nome.equals(equipamento.getNome())) {
+
+                erroNome = equipamento.renomearArquivo(nome);
+
+                if (erroNome != null) {
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            erroNome,
+                            "Aviso",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+
+                    return;
+                }
+            }
+
             // Campos comuns
-            equipamento.setNome(nome);
             equipamento.setQuantidade(quantidade);
             equipamento.setCarga(carga);
             equipamento.setDescricao(descricao);

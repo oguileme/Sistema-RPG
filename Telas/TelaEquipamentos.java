@@ -18,6 +18,7 @@ public class TelaEquipamentos extends JFrame {
     private JList<String> listaEquipamentos;
     private JLabel rotuloAviso;
     private JButton botaoEditar;
+    private JButton botaoExcluir;
 
     public TelaEquipamentos() {
 
@@ -60,10 +61,12 @@ public class TelaEquipamentos extends JFrame {
 
         JButton botaoCadastrar = new JButton("Cadastrar Equipamento");
         botaoEditar = new JButton("Editar selecionado");
+        botaoExcluir = new JButton("Excluir selecionado");
         JButton botaoFechar = new JButton("Fechar");
 
         painelBotoes.add(botaoCadastrar);
         painelBotoes.add(botaoEditar);
+        painelBotoes.add(botaoExcluir);
         painelBotoes.add(botaoFechar);
 
         painelPrincipal.add(painelBotoes, BorderLayout.SOUTH);
@@ -78,6 +81,9 @@ public class TelaEquipamentos extends JFrame {
 
         // Botão editar selecionado
         botaoEditar.addActionListener(e -> editarSelecionado());
+
+        // Botão excluir selecionado
+        botaoExcluir.addActionListener(e -> excluirSelecionado());
 
         // Duplo clique na lista abre a edição
         listaEquipamentos.addMouseListener(new MouseAdapter() {
@@ -125,6 +131,7 @@ public class TelaEquipamentos extends JFrame {
         listaEquipamentos.setModel(modelo);
 
         botaoEditar.setEnabled(!equipamentos.isEmpty());
+        botaoExcluir.setEnabled(!equipamentos.isEmpty());
 
         if (equipamentos.isEmpty()) {
             rotuloAviso.setText("Nenhum equipamento cadastrado ainda.");
@@ -151,6 +158,51 @@ public class TelaEquipamentos extends JFrame {
         }
 
         new TelaEdicaoEquipamento(equipamentos.get(posicao)).setVisible(true);
+    }
+
+    //apaga o equipamento selecionado, com confirmação antes
+    private void excluirSelecionado() {
+
+        int posicao = listaEquipamentos.getSelectedIndex();
+
+        if (posicao < 0) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Selecione um equipamento na lista.",
+                    "Aviso",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            return;
+        }
+
+        Equipamento equipamento = equipamentos.get(posicao);
+
+        int resposta = JOptionPane.showConfirmDialog(
+                this,
+                "Excluir \"" + equipamento.getNome() + "\"?",
+                "Confirmar exclusão",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (resposta != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        if (!equipamento.excluir()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Não foi possível excluir o equipamento.",
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+            return;
+        }
+
+        atualizarLista();
     }
 
     public static void main(String[] args) {

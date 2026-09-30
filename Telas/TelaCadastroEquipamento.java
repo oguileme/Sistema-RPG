@@ -3,6 +3,7 @@ package Telas;
 import classes.Arma;
 import classes.Armadura;
 import classes.Equipamento;
+import classes.ValidadorEquipamento;
 import classes.ValidadorNome;
 
 import javax.swing.*;
@@ -174,6 +175,34 @@ public class TelaCadastroEquipamento extends JFrame {
     }
 
     //cria o equipamento do tipo escolhido e salva
+    // Valida só os campos que existem para o tipo escolhido.
+    // Devolve null quando está tudo certo.
+    private String validarCamposDoTipo(String tipo) {
+
+        try {
+
+            if ("Arma".equals(tipo)) {
+
+                return ValidadorEquipamento.erroAlcance(
+                        Double.valueOf(campoAlcance.getText().trim())
+                );
+
+            } else if ("Armadura".equals(tipo)) {
+
+                return ValidadorEquipamento.erroMaxDestreza(
+                        Integer.parseInt(campoMaxDestreza.getText().trim())
+                );
+            }
+
+            return null;
+
+        } catch (NumberFormatException e) {
+            // campo não numérico: deixa o aviso de "preencha os campos
+            // numéricos" do chamador tratar
+            return null;
+        }
+    }
+
     private void salvarEquipamento() {
 
         try {
@@ -199,6 +228,30 @@ public class TelaCadastroEquipamento extends JFrame {
             );
 
             int carga = Integer.parseInt(campoCarga.getText().trim());
+
+            String erro = ValidadorEquipamento.erroQuantidade(quantidade);
+
+            if (erro == null) {
+                erro = ValidadorEquipamento.erroCarga(carga);
+            }
+
+            if (erro == null) {
+                erro = validarCamposDoTipo(
+                        (String) campoTipo.getSelectedItem()
+                );
+            }
+
+            if (erro != null) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        erro,
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
 
             String descricao = campoDescricao.getText().trim();
 
